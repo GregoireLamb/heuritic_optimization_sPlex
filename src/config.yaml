@@ -1,0 +1,2 @@
+instances:
+  type: test    # Can be competition, test, tuning
