@@ -11,6 +11,15 @@ class Config:
         self.root = Path(__file__).parent.parent
         self.config_path = f'{self.root}/config.yaml'
 
+        self.__config = self.load_config()
+
+        # Execution
+        self.instance_type = self.__config["execute"]["instance_type"]
+        self.method = self.__config["execute"]["method"]
+
+        # Paths
+        self.instances_dir = f'{self.root}/{self.__config["paths"]["instances"]}'
+
     def load_config(self):
         """
         Load config.yaml file
