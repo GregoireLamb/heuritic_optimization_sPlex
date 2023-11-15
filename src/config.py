@@ -15,6 +15,7 @@ class Config:
 
         # Execution
         self.instance_type = self.__config["execute"]["instance_type"]
+        self.instance_indices = self.__config["execute"]["instance_indices"]
         self.method = self.__config["execute"]["method"]
 
         # Paths

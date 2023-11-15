@@ -18,13 +18,16 @@ class Instance:
         self.edges = list(self.edge_info.keys())
         self.weight = {e: self.edge_info[e][1] for e in self.edges}
         self.weight = {**self.weight, **{(j, i): self.weight[(i, j)] for (i, j) in self.edges}}
-        self.in_instance = {e: self.edge_info[e][0] for e in self.edges} # 1 if edge is in instance, 0 otherwise
-        self.edges_in_instance = [e for e in self.edges if self.in_instance[e] == 1] # List of edges in instance
+        self.in_instance = {e: self.edge_info[e][0] for e in self.edges}  # 1 if edge is in instance, 0 otherwise
+        self.edges_in_instance = [e for e in self.edges if self.in_instance[e] == 1]  # List of edges in instance
         self.edges_in_instance = self.edges_in_instance + [(j, i) for (i, j) in self.edges_in_instance]
 
         self.graph = nx.Graph()
         self.graph.add_nodes_from(self.nodes)
         self.graph.add_edges_from(self.edges)
+
+    def __repr__(self):
+        return f'Instance with {self.n} nodes and {self.m} edges'
 
 
 class Solution:
@@ -58,7 +61,6 @@ def is_s_plex(k, G):
     """
     min_degree = min([G.degree(v) for v in G.nodes()])
     # S amount of nodes in G
-    if min_degree < len(G.nodes())-k:
+    if min_degree < len(G.nodes()) - k:
         return False
     return True
-

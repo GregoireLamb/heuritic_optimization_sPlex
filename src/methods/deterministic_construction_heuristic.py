@@ -36,7 +36,7 @@ class DeterministicConstructionHeuristic:
             if best_component == -1:
                 self._components.append({best_node})
             else:
-                self._components[index].add(best_node)
+                self._components[best_component].add(best_node)
             to_add.remove(best_node)
 
         for k in self._components:
@@ -70,7 +70,7 @@ class DeterministicConstructionHeuristic:
         G = nx.Graph()
         for n in k:
             G.add_node(n)
-        if only_compute_edges == False:
+        if not only_compute_edges:
             G.add_node(i)
         for n in G.nodes():
             for m in G.nodes():
@@ -82,7 +82,7 @@ class DeterministicConstructionHeuristic:
         cost = 0
 
         # Cost of cutting i from the rest of the existing graph
-        if only_compute_edges == False:
+        if not only_compute_edges:
             for c in self._components:
                 if c != k:
                     for j in c:
@@ -103,7 +103,7 @@ class DeterministicConstructionHeuristic:
             G.add_edge(min_degree_edge, best_node_to_add)
             cost += best_sup_cost
 
-        if only_compute_edges == True:
+        if only_compute_edges:
             return G.edges()
 
         return cost

@@ -4,6 +4,7 @@ from src.config import Config
 from src.instance_loader import InstanceLoader
 from src.methods.deterministic_construction_heuristic import DeterministicConstructionHeuristic
 
+
 def load_method(method_name):
     if method_name == 'deterministic_construction_heuristic':
         return DeterministicConstructionHeuristic
@@ -18,10 +19,12 @@ if __name__ == '__main__':
     instances = instance_loader.load_instances()
 
     # for instance in instances:
-    instance = instances[0]
     method = load_method(config.method)()
-    solution = method.solve(instance)
-    print(solution)
+    for i, instance in enumerate(instances):
+        print(f'Running instance {i + 1} / {len(instances)}')
+        print(f' -- Instance information: {instance}')
+        solution = method.solve(instance)
+        print(solution)
 
     prof.stop()
     print(prof.output_text(unicode=True, color=True))
