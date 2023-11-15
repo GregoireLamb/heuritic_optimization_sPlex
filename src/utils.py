@@ -6,7 +6,6 @@ class Instance:
     """
     Class that represents an instance of the S-Plex problem
     """
-
     def __init__(self, s, n, m, edge_info):
         self.s = int(s)
         self.n = int(n)
@@ -45,6 +44,9 @@ class Solution:
         return f"Solution cost: {self.evaluate()}, number of connected components: {nx.number_connected_components(G)}"
 
     def evaluate(self):
+        """
+        Evaluate the solution
+        """
         obj = 0
         for edge in self.instance.edges:
             if self.x[edge] != self.instance.in_instance[edge]:
@@ -52,15 +54,13 @@ class Solution:
         return obj
 
 
-def is_s_plex(k, G):
+def is_s_plex(s, G):
     """"
     Check if G is a k-plex
-    :param k: size of the plex (k-plex)
+    :param s: size of the plex (k-plex)
     :param G: graph
     :return: True if G is a k-plex, False otherwise
     """
-    min_degree = min(dict(G.degree).values())
-    # S amount of nodes in G
-    if min_degree < len(G.nodes()) - k:
+    if min(dict(G.degree).values()) < len(G.nodes()) - s:
         return False
     return True

@@ -1,6 +1,6 @@
 import networkx as nx
 
-from src.utils import Solution, is_s_plex
+from src.utils import Solution, is_s_plex, Instance
 
 
 class DeterministicConstructionHeuristic:
@@ -10,7 +10,12 @@ class DeterministicConstructionHeuristic:
         self._components = []
         self._s = -1
 
-    def solve(self, instance) -> Solution:
+    def solve(self, instance: Instance) -> Solution:
+        """
+        Solve the instance using the deterministic construction heuristic
+        :param instance: instance to solve
+        :return: solution
+        """
         self._s = instance.s
         self._instance = instance
 
@@ -79,19 +84,29 @@ class DeterministicConstructionHeuristic:
         return cost
 
     def get_edges_of_s_plex(self, k):
+        """
+        Get the edges of the s-plex of component k
+        :param k: component
+        :return: edges of the s-plex
+        """
         G = self.create_component_graph(k)
         self.make_s_plex(G, 0)
         return G.edges()
 
     def make_s_plex(self, G, cost):
-        # add edges till S-plex
+        """
+        Make G an s-plex
+        :param G: graph
+        :param cost: current cost
+        :return: cost of making G an s-plex
+        """
         while not is_s_plex(self._s, G):
             min_degree_node = min(G.nodes(), key=lambda x: G.degree(x))
             best_node_to_add = -1
             best_sup_cost = 1e10
             for node in G.nodes():
                 if node != min_degree_node and (min_degree_node, node) not in G.edges():
-                    sup_cost = self._instance.weight[(min_degree_node, node)]
+                    sup_cost = self._instance.weight[min_degree_node, node]
                     if sup_cost < best_sup_cost:
                         best_sup_cost = sup_cost
                         best_node_to_add = node
@@ -100,17 +115,27 @@ class DeterministicConstructionHeuristic:
         return cost
 
     def create_component_graph(self, k):
-        # Create a new graph with the vertex i and the edges of component k
+        """
+        Create a graph with the nodes in component k
+        :param k: component
+        :return: graph
+        """
         G = nx.Graph()
         G.add_nodes_from(k)
-        for n in G.nodes():
-            for m in G.nodes():
+        for n in k:
+            for m in k:
                 if n < m and (n, m) in self._instance.edges_in_instance:
                     G.add_edge(n, m)
         return G
 
     def disconnecting_cost(self, cost, i, k):
-        # Cost of cutting i from the rest of the existing graph
+        """
+        Compute the disconnecting cost of adding node i to component k
+        :param cost: current cost
+        :param i: node
+        :param k: component
+        :return: disconnecting cost
+        """
         for c in self._components:
             if c == k:
                 continue
