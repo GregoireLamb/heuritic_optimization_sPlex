@@ -41,7 +41,7 @@ class Solution:
         G.add_edges_from([e for e in self.instance.edges if self.x[e] == 1])
         nx.draw(G, with_labels=True)
         plt.show()
-        print(f"Solution cost: {self.evaluate()}, number of connected components: {nx.number_connected_components(G)}")
+        return f"Solution cost: {self.evaluate()}, number of connected components: {nx.number_connected_components(G)}"
 
     def evaluate(self):
         obj = 0
