@@ -19,8 +19,9 @@ class Instance:
         self.weight = {e: self.edge_info[e][1] for e in self.edges}
         self.weight = {**self.weight, **{(j, i): self.weight[(i, j)] for (i, j) in self.edges}}
         self.in_instance = {e: self.edge_info[e][0] for e in self.edges}  # 1 if edge is in instance, 0 otherwise
-        self.edges_in_instance = [e for e in self.edges if self.in_instance[e] == 1]  # List of edges in instance
-        self.edges_in_instance = self.edges_in_instance + [(j, i) for (i, j) in self.edges_in_instance]
+        self.in_instance = {**self.in_instance, **{(j, i): self.in_instance[(i, j)] for (i, j) in self.edges}}
+        self.edges_in_instance = {e for e in self.edges if self.in_instance[e] == 1}  # List of edges in instance
+        self.edges_in_instance = self.edges_in_instance.union({(j, i) for (i, j) in self.edges_in_instance})
 
         self.graph = nx.Graph()
         self.graph.add_nodes_from(self.nodes)
@@ -58,7 +59,7 @@ def is_s_plex(k, G):
     :param G: graph
     :return: True if G is a k-plex, False otherwise
     """
-    min_degree = min([G.degree(v) for v in G.nodes()])
+    min_degree = min(dict(G.degree).values())
     # S amount of nodes in G
     if min_degree < len(G.nodes()) - k:
         return False
