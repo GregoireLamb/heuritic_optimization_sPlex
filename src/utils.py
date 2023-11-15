@@ -42,7 +42,6 @@ class Solution:
         nx.draw(G, with_labels=True)
         plt.show()
         print(f"Solution cost: {self.evaluate()}, number of connected components: {nx.number_connected_components(G)}")
-        return f', '
 
     def evaluate(self):
         obj = 0
