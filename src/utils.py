@@ -6,11 +6,13 @@ class Instance:
     """
     Class that represents an instance of the S-Plex problem
     """
-    def __init__(self, s, n, m, edge_info):
+    def __init__(self, s, n, m, edge_info, name):
         self.s = int(s)
         self.n = int(n)
         self.m = int(m)
         self.edge_info = edge_info
+
+        self.name = name
 
         # Create additional structures needed
         self.nodes = list(range(1, self.n + 1))
@@ -27,7 +29,7 @@ class Instance:
         self.graph.add_edges_from(self.edges)
 
     def __repr__(self):
-        return f'Instance with {self.n} nodes and {self.m} edges'
+        return f'  {self.name}:\n   - {self.n} nodes\n   - {self.m} edges'
 
 
 class Solution:

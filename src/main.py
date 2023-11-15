@@ -22,7 +22,7 @@ if __name__ == '__main__':
     method = load_method(config.method)()
     for i, instance in enumerate(instances):
         print(f'Running instance {i + 1} / {len(instances)}')
-        print(f' -- Instance information: {instance}')
+        print(f'Instance information:\n{instance}')
         solution = method.solve(instance)
         print(solution)
 

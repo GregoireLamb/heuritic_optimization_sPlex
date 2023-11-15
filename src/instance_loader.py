@@ -12,6 +12,8 @@ class InstanceLoader:
         """
         Load the instance located in the path
         """
+        name = path.split('/')[-1].split('.')[0]
+
         # Open the .txt file
         with open(path, 'r') as f:
             lines = f.readlines()
@@ -24,7 +26,7 @@ class InstanceLoader:
                 i, j, x, w = lines[line].split()
                 edges[(int(i), int(j))] = (int(x), int(w))
 
-        return Instance(s, n, m, edges)
+        return Instance(s, n, m, edges, name)
 
     def load_instances(self) -> list:
         """
