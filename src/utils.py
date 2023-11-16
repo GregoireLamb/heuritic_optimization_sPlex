@@ -56,13 +56,11 @@ class Solution:
         return obj
 
 
-def is_s_plex(s, G):
+def is_s_plex(s, G: nx.Graph):
     """"
     Check if G is a k-plex
     :param s: size of the plex (k-plex)
-    :param G: graph
+    :param G: nx graph
     :return: True if G is a k-plex, False otherwise
     """
-    if min(dict(G.degree).values()) < len(G.nodes()) - s:
-        return False
-    return True
+    return min(dict(G.degree).values()) >= len(G.nodes()) - s

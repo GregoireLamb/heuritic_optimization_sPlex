@@ -44,8 +44,10 @@ class DeterministicConstructionHeuristic:
 
             if best_component is None:
                 self._components.append({best_node})
+                print(f'Creating new component with node {best_node}, cost = {best_cost}')
             else:
                 self._components[best_component].add(best_node)
+                print(f'Adding node {best_node} to component {best_component}, cost = {best_cost}')
             to_add.remove(best_node)
 
         for k in self._components:
