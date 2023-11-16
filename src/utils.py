@@ -26,7 +26,7 @@ class Instance:
 
         self.graph = nx.Graph()
         self.graph.add_nodes_from(self.nodes)
-        self.graph.add_edges_from(self.edges)
+        self.graph.add_edges_from(self.edges_in_instance)
 
     def __repr__(self):
         return f'  {self.name}:\n   - {self.n} nodes\n   - {self.m} edges'
