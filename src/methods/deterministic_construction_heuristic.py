@@ -76,8 +76,7 @@ class DeterministicConstructionHeuristic:
         :param k: component
         :return: cost
         """
-        G = self.create_component_graph(k)
-        G.add_node(i)
+        G = self.create_component_graph(k, i)
 
         cost = 0
         cost = self.disconnecting_cost(cost, i, k)
@@ -116,7 +115,7 @@ class DeterministicConstructionHeuristic:
             cost += best_sup_cost
         return cost
 
-    def create_component_graph(self, k):
+    def create_component_graph(self, k, i=None):
         """
         Create a graph with the nodes in component k
         :param k: component
@@ -124,8 +123,10 @@ class DeterministicConstructionHeuristic:
         """
         G = nx.Graph()
         G.add_nodes_from(k)
-        for n in k:
-            for m in k:
+        if i is not None:
+            G.add_node(i)
+        for n in G.nodes():
+            for m in G.nodes():
                 if n < m and (n, m) in self._instance.edges_in_instance:
                     G.add_edge(n, m)
         return G
