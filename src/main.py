@@ -23,7 +23,7 @@ if __name__ == '__main__':
     for i, instance in enumerate(instances):
         print(f'Running instance {i + 1} / {len(instances)}')
         print(f'Instance information:\n{instance}')
-        solution = method.solve(instance)
+        solution = method.solve(instance, Randomize=True)
         print(solution)
 
     prof.stop()

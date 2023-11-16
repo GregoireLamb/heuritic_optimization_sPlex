@@ -1,4 +1,7 @@
+import math
+
 import networkx as nx
+import random
 
 from src.utils import Solution, is_s_plex, Instance
 
@@ -10,10 +13,11 @@ class DeterministicConstructionHeuristic:
         self._components = []
         self._s = -1
 
-    def solve(self, instance: Instance) -> Solution:
+    def solve(self, instance: Instance, Randomize=False) -> Solution:
         """
         Solve the instance using the deterministic construction heuristic
         :param instance: instance to solve
+        :param Randomize: if True, the algorithm will solve with a randomized heuristic chosing at random among the 1/3 best options at each time
         :return: solution
         """
         self._s = instance.s
@@ -24,9 +28,10 @@ class DeterministicConstructionHeuristic:
         to_add = set(instance.nodes)
 
         while len(to_add) > 0:
+            if Randomize:
+                best_option_dict = {}
             best_cost, best_component, best_node = 1e10, None, None
             for i in to_add:
-
                 # New component
                 cost = self.compute_cost_of_new_component(i)
                 if cost < best_cost:
@@ -41,6 +46,14 @@ class DeterministicConstructionHeuristic:
                         best_cost = cost
                         best_component = index
                         best_node = i
+                if Randomize:
+                    best_option_dict[i] = (best_cost, best_component, best_node)
+
+            if Randomize:
+                best_option_list = sorted(best_option_dict.items(), key=lambda x: x[1][0]) # Sort by cost
+                top_third_index = math.ceil(len(best_option_dict) / 3)
+                index = random.randint(0, top_third_index-1)
+                best_cost, best_component, best_node = best_option_list[index][1]
 
             if best_component is None:
                 self._components.append({best_node})
