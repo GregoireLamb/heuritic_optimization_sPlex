@@ -17,6 +17,7 @@ class Config:
         self.instance_type = self.__config["execute"]["instance_type"]
         self.instance_indices = self.__config["execute"]["instance_indices"]
         self.method = self.__config["execute"]["method"]
+        self.param_list = self.__config["execute"]["param_list"]
 
         # Paths
         self.instances_dir = f'{self.root}/{self.__config["paths"]["instances"]}'

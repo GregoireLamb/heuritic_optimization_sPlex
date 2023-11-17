@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import os
 
 
 class Instance:
@@ -54,6 +55,28 @@ class Solution:
             if self.x[edge] != self.instance.in_instance[edge]:
                 obj += self.instance.weight[edge]
         return obj
+
+    def save(self, config, path=None):
+        """
+        Save the solution in a txt file
+        Only write the updated edges in format "i j" where i<j
+        :param path: path to save the solution
+        """
+        if path is None:
+            path = "../solutions/"+config.method+"/"+config.param_list[0]
+
+        # Create directory if it does not exist
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        with open(f"{path}/{self.instance.name}.txt", "w") as f:
+            f.write(f"{self.instance.name}\n") # First line is the name of the instance
+
+            for edge in self.instance.edges:
+                if self.x[edge] != self.instance.in_instance[edge]:
+                    f.write(f"{edge[0]} {edge[1]}\n")
+
+        return
 
 
 def is_s_plex(s, G):
