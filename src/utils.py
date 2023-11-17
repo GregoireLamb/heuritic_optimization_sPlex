@@ -27,7 +27,7 @@ class Instance:
 
         self.graph = nx.Graph()
         self.graph.add_nodes_from(self.nodes)
-        self.graph.add_edges_from(self.edges)
+        self.graph.add_edges_from(self.edges_in_instance)
 
     def __repr__(self):
         return f'  {self.name}:\n   - {self.n} nodes\n   - {self.m} edges'
@@ -79,13 +79,11 @@ class Solution:
         return
 
 
-def is_s_plex(s, G):
+def is_s_plex(s, G: nx.Graph):
     """"
     Check if G is a k-plex
     :param s: size of the plex (k-plex)
-    :param G: graph
+    :param G: nx graph
     :return: True if G is a k-plex, False otherwise
     """
-    if min(dict(G.degree).values()) < len(G.nodes()) - s:
-        return False
-    return True
+    return min(dict(G.degree).values()) >= len(G.nodes()) - s
