@@ -1,4 +1,4 @@
 config.yaml
 .idea/*
 src/__pycache__/*
-src/methods/*
+src/methods/__pycache__/*
