@@ -17,10 +17,13 @@ class Config:
         self.instance_type = self.__config["execute"]["instance_type"]
         self.instance_indices = self.__config["execute"]["instance_indices"]
         self.method = self.__config["execute"]["method"]
-        self.param_list = self.__config["execute"]["param_list"]
+
+        # Param dictionary for the particular method
+        self.method_params = self.__config["params"][self.method]
 
         # Paths
         self.instances_dir = f'{self.root}/{self.__config["paths"]["instances"]}'
+        self.solutions_dir = f'{self.root}/{self.__config["paths"]["solutions"]}'
 
     def load_config(self):
         """

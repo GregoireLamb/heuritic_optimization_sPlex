@@ -8,12 +8,17 @@ from src.utils import Solution, is_s_plex, Instance
 
 class ConstructionHeuristic:
     def __init__(self, params=None):
+
+        assert params is not None, 'No params given. Must include at least the randomized boolean parameter'
+
+        self._randomized = params['randomized']
+
         self._instance = None
         self._x = {}
         self._components = []
         self._s = -1
 
-    def solve(self, instance: Instance, param_list) -> Solution:
+    def solve(self, instance: Instance) -> Solution:
         """
         Solve the instance using the deterministic construction heuristic
         :param instance: instance to solve
@@ -22,19 +27,13 @@ class ConstructionHeuristic:
         """
         self._s = instance.s
         self._instance = instance
-        self.randomize = None
-        if len(param_list) == 1:
-            if param_list[0] == 'deterministic':
-                self.randomize = False
-            elif param_list[0] == 'randomized':
-                self.randomize = True
 
         self._x = {e: 0 for e in instance.edges}
 
         to_add = set(instance.nodes)
 
         while len(to_add) > 0:
-            if self.randomize:
+            if self._randomized:
                 best_option_dict = {}
             best_cost, best_component, best_node = 1e10, None, None
             for i in to_add:
@@ -52,10 +51,10 @@ class ConstructionHeuristic:
                         best_cost = cost
                         best_component = index
                         best_node = i
-                if self.randomize:
+                if self._randomized:
                     best_option_dict[i] = (best_cost, best_component, best_node)
 
-            if self.randomize:
+            if self._randomized:
                 best_option_list = sorted(best_option_dict.items(), key=lambda x: x[1][0]) # Sort by cost
                 top_third_index = math.ceil(len(best_option_dict) / 3)
                 index = random.randint(0, top_third_index-1)

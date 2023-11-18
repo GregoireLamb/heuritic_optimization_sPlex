@@ -2,11 +2,14 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 
+from src.config import Config
+
 
 class Instance:
     """
     Class that represents an instance of the S-Plex problem
     """
+
     def __init__(self, s, n, m, edge_info, name):
         self.s = int(s)
         self.n = int(n)
@@ -56,27 +59,27 @@ class Solution:
                 obj += self.instance.weight[edge]
         return obj
 
-    def save(self, config, path=None):
+    def save(self, config: Config, path=None):
         """
         Save the solution in a txt file
         Only write the updated edges in format "i j" where i<j
+        :param config: config object
         :param path: path to save the solution
         """
         if path is None:
-            path = "../solutions/"+config.method+"/"+config.param_list[0]
+            path = f"{config.solutions_dir}/{config.method}/" \
+                   f"{'randomized' if config.method_params['randomized'] else 'deterministic'}"
 
         # Create directory if it does not exist
         if not os.path.exists(path):
             os.makedirs(path)
 
         with open(f"{path}/{self.instance.name}.txt", "w") as f:
-            f.write(f"{self.instance.name}\n") # First line is the name of the instance
+            f.write(f"{self.instance.name}\n")  # First line is the name of the instance
 
             for edge in self.instance.edges:
                 if self.x[edge] != self.instance.in_instance[edge]:
                     f.write(f"{edge[0]} {edge[1]}\n")
-
-        return
 
 
 def is_s_plex(s, G: nx.Graph):

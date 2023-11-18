@@ -25,11 +25,11 @@ if __name__ == '__main__':
     instances = instance_loader.load_instances()
 
     # for instance in instances:
-    method = load_method(config.method)()
+    method = load_method(config.method)(params=config.method_params)
     for i, instance in enumerate(instances):
         print(f'Running instance {i + 1} / {len(instances)}')
         print(f'Instance information:\n{instance}')
-        solution = method.solve(instance, config.param_list)
+        solution = method.solve(instance)
         print(solution)
         solution.save(config)
 
