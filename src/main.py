@@ -27,10 +27,5 @@ if __name__ == '__main__':
         print(solution)
         # solution.save(config)
 
-        kflips = list(solution.generate_neighborhood('kflips_1', config.neighborhood_params))
-        print(f'Number of neighbors: {len(kflips)}')
-        print(f'Current solution cost: {solution.evaluate()}')
-        print(f'Best cost neighbor: {min(kflips, key=lambda x: x.evaluate())}')
-
     prof.stop()
     print(prof.output_text(unicode=True, color=True))

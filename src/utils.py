@@ -34,7 +34,7 @@ class Instance:
 
 def is_s_plex(s, G: nx.Graph):
     """"
-    Check if G is a k-plex
+    Check if a connected graph G is a k-plex
     :param s: size of the plex (k-plex)
     :param G: nx graph
     :return: True if G is a k-plex, False otherwise

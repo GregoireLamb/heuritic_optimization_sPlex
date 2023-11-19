@@ -14,9 +14,10 @@ def test_neighborhoods():
 
     solution = ConstructionHeuristic(params=config.method_params).solve(instance)
     print(f'Initial solution cost: {solution.evaluate()}')
+    print(f'Feasible: {solution.is_feasible()}')
     print(solution)
 
-    to_test = ['kflips_1', 'kflips_2']
+    to_test = ['kflips_1', 'kflips_2', 'movenodes_2', 'nodeswap_2']
 
     n_neighbors_test = 200
 
@@ -31,12 +32,15 @@ def test_neighborhoods():
         i = 0
         costs = []
         while i < n_neighbors_test:
+
             try:
                 neighbor = next(neighbors)
                 costs.append(neighbor.evaluate())
                 i += 1
             except StopIteration:
                 break
+            if not neighbor.is_feasible():
+                print(f'Infeasible neighbor!')
 
         print(f' - Neighborhood size: {len(costs)}')
         print(f' - Current solution cost: {solution.evaluate()}')
