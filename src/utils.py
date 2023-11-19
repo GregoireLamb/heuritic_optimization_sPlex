@@ -1,8 +1,4 @@
 import networkx as nx
-import matplotlib.pyplot as plt
-import os
-
-from src.config import Config
 
 
 class Instance:
@@ -19,8 +15,8 @@ class Instance:
         self.name = name
 
         # Create additional structures needed
-        self.nodes = list(range(1, self.n + 1))
-        self.edges = list(self.edge_info.keys())
+        self.nodes = set(range(1, self.n + 1))
+        self.edges = set(self.edge_info.keys())
         self.weight = {e: self.edge_info[e][1] for e in self.edges}
         self.weight = {**self.weight, **{(j, i): self.weight[(i, j)] for (i, j) in self.edges}}
         self.in_instance = {e: self.edge_info[e][0] for e in self.edges}  # 1 if edge is in instance, 0 otherwise
@@ -34,52 +30,6 @@ class Instance:
 
     def __repr__(self):
         return f'  {self.name}:\n   - {self.n} nodes\n   - {self.m} edges'
-
-
-class Solution:
-    def __init__(self, instance: Instance, x: dict):
-        self.instance = instance
-        self.x = x  # Dictionary with edge as key and 1 if edge is in final graph, 0 otherwise
-
-    def __repr__(self):
-        G = nx.Graph()
-        G.add_nodes_from(self.instance.nodes)
-        G.add_edges_from([e for e in self.instance.edges if self.x[e] == 1])
-        nx.draw(G, with_labels=True)
-        plt.show()
-        return f"Solution cost: {self.evaluate()}, number of connected components: {nx.number_connected_components(G)}"
-
-    def evaluate(self):
-        """
-        Evaluate the solution
-        """
-        obj = 0
-        for edge in self.instance.edges:
-            if self.x[edge] != self.instance.in_instance[edge]:
-                obj += self.instance.weight[edge]
-        return obj
-
-    def save(self, config: Config, path=None):
-        """
-        Save the solution in a txt file
-        Only write the updated edges in format "i j" where i<j
-        :param config: config object
-        :param path: path to save the solution
-        """
-        if path is None:
-            path = f"{config.solutions_dir}/{config.method}/" \
-                   f"{'randomized' if config.method_params['randomized'] else 'deterministic'}"
-
-        # Create directory if it does not exist
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        with open(f"{path}/{self.instance.name}.txt", "w") as f:
-            f.write(f"{self.instance.name}\n")  # First line is the name of the instance
-
-            for edge in self.instance.edges:
-                if self.x[edge] != self.instance.in_instance[edge]:
-                    f.write(f"{edge[0]} {edge[1]}\n")
 
 
 def is_s_plex(s, G: nx.Graph):

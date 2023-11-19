@@ -3,7 +3,8 @@ import math
 import networkx as nx
 import random
 
-from src.utils import Solution, is_s_plex, Instance
+from src.utils import is_s_plex, Instance
+from src.solution import Solution
 
 
 class ConstructionHeuristic:
@@ -72,7 +73,7 @@ class ConstructionHeuristic:
             new_edges = self.get_edges_of_s_plex(k)
             self._x.update({e: 1 for e in new_edges})
 
-        return Solution(instance, self._x)
+        return Solution(instance, self._x, self._components)
 
     def compute_cost_of_new_component(self, i):
         """
@@ -137,6 +138,7 @@ class ConstructionHeuristic:
         """
         Create a graph with the nodes in component k
         :param k: component
+        :param i: node to add
         :return: graph
         """
         G = nx.Graph()

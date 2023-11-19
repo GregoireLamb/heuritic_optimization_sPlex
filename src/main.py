@@ -9,12 +9,6 @@ def load_method(method_name):
     if method_name == 'construction_heuristic':
         return ConstructionHeuristic
 
-# def load_param(param_list):
-#     if param_list == ['deterministic']:
-#         return ConstructionHeuristic
-#     if param_list == ['randomised']:
-#         return ConstructionHeuristic
-
 
 if __name__ == '__main__':
     prof = Profiler()
@@ -31,7 +25,12 @@ if __name__ == '__main__':
         print(f'Instance information:\n{instance}')
         solution = method.solve(instance)
         print(solution)
-        solution.save(config)
+        # solution.save(config)
+
+        kflips = list(solution.generate_neighborhood('kflips_1', config.neighborhood_params))
+        print(f'Number of neighbors: {len(kflips)}')
+        print(f'Current solution cost: {solution.evaluate()}')
+        print(f'Best cost neighbor: {min(kflips, key=lambda x: x.evaluate())}')
 
     prof.stop()
-    # print(prof.output_text(unicode=True, color=True))
+    print(prof.output_text(unicode=True, color=True))

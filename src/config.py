@@ -20,6 +20,7 @@ class Config:
 
         # Param dictionary for the particular method
         self.method_params = self.__config["params"][self.method]
+        self.neighborhood_params = self.__config["params"]["neighborhood_params"]
 
         # Paths
         self.instances_dir = f'{self.root}/{self.__config["paths"]["instances"]}'
