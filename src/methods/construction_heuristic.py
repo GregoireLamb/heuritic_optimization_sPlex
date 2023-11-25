@@ -23,7 +23,6 @@ class ConstructionHeuristic:
         """
         Solve the instance using the deterministic construction heuristic
         :param instance: instance to solve
-        :param Randomize: if True, the algorithm will solve with a randomized heuristic chosing at random among the 1/3 best options at each time
         :return: solution
         """
         self._s = instance.s

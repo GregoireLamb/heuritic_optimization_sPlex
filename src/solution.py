@@ -76,8 +76,9 @@ class Solution:
         :param path: path to save the solution
         """
         if path is None:
-            path = f"{config.solutions_dir}/{config.method}/" \
-                   f"{'randomized' if config.method_params['randomized'] else 'deterministic'}"
+            path = f"{config.solutions_dir}/{config.method}"
+            if config.method == 'construction_heuristic':
+                path += f"/{config.det_or_random_construction}"
 
         # Create directory if it does not exist
         if not os.path.exists(path):
@@ -103,9 +104,28 @@ class Solution:
         if type == 'kflips':
             return self.kflips_neighborhood(neighborhood_config, *params)
         elif type == 'nodeswap':
-            return self.swap_nodes(neighborhood_config, *params)
+            return self.swap_nodes_neighborhood(neighborhood_config, *params)
         elif type == 'movenodes':
-            return self.move_nodes(neighborhood_config, *params)
+            return self.move_nodes_neighborhood(neighborhood_config, *params)
+        else:
+            raise ValueError(f'Neighborhood type {type} does not exist')
+
+    def get_random_neighbor(self, type: str, neighborhood_config: dict) -> 'Solution':
+        """
+        Generate a random neighbor of the current solution
+        :param type: type of neighborhood
+        :param neighborhood_config: dictionary with neighborhood parameters
+        :return: random neighbor
+        """
+        type, params = type.split('_', 1)
+        params = params.split('_')
+        neighborhood_config = neighborhood_config.get(type, {})
+        if type == 'kflips':
+            return self.kflips_random_neighbor(neighborhood_config, *params)
+        elif type == 'nodeswap':
+            return self.swap_nodes_random_neighbor(neighborhood_config, *params)
+        elif type == 'movenodes':
+            return self.move_nodes_random_neighbor(neighborhood_config, *params)
         else:
             raise ValueError(f'Neighborhood type {type} does not exist')
 
@@ -117,28 +137,45 @@ class Solution:
 
         # Iterate over all possible k-choices of edges
         for edges_to_remove in combinations(edges, k):
-            # Remove the k edges
-            new_x = {e: 0 if e in edges_to_remove else self.x[e] for e in self.instance.edges}
-            new_G = nx.Graph()
-            new_G.add_nodes_from(self.instance.nodes)
-            new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
-            new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G, forbiden_edges=edges_to_remove)
-
-            # Check if feasible solution was found
-            if new_x is None:
+            sol = self.remove_edges(edges_to_remove)
+            if sol is None:
                 continue
 
             # TODO: pass the components to the solution
             # TODO: pass the objective value to the solution (delta evaluation)
-            yield Solution(self.instance, new_x, components, new_G)
+            yield sol
 
-    def _make_s_plex_on_full_graph(self, new_x, new_G, forbiden_edges=None):
-        if forbiden_edges is None:
-            forbiden_edges = set()
+    def kflips_random_neighbor(self, config, k):
+        k = int(k)
+        edges = {e for e in self.instance.edges if self.x[e]}
+        if not config['remove_edge_in_instance_allowed']:
+            edges -= self.instance.edges_in_instance
+
+        while True:
+            edges_to_remove = random.sample(edges, k)
+            sol = self.remove_edges(edges_to_remove)
+            # Check if feasible solution was found
+            if sol is not None:
+                return sol
+
+    def remove_edges(self, edges_to_remove):
+        # Remove the k edges
+        new_x = {e: 0 if e in edges_to_remove else self.x[e] for e in self.instance.edges}
+        new_G = nx.Graph()
+        new_G.add_nodes_from(self.instance.nodes)
+        new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
+        new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G, forbidden_edges=edges_to_remove)
+        if new_x is None:
+            return None
+        return Solution(self.instance, new_x, components, new_G)
+
+    def _make_s_plex_on_full_graph(self, new_x, new_G, forbidden_edges=None):
+        if forbidden_edges is None:
+            forbidden_edges = set()
 
         components = list(nx.connected_components(new_G))
         for comp in components:
-            new_x, new_G = self._make_s_plex_on_component(new_x, comp, forbiden_edges)
+            new_x, new_G = self._make_s_plex_on_component(new_x, comp, forbidden_edges)
             if new_x is None:
                 return None, None, None
 
@@ -155,9 +192,11 @@ class Solution:
                     G_comp.add_edge(n, m)
         while not is_s_plex(self.instance.s, G_comp):
             min_degree_node = min(G_comp.nodes(), key=lambda x: G_comp.degree(x))
-            candidates = [node for node in G_comp.nodes() if node != min_degree_node and
-                          (min_degree_node, node) not in G_comp.edges() and
-                          (min_degree_node, node) not in forbidden_edges]
+            # candidates = [node for node in G_comp.nodes() if node != min_degree_node and
+            #               (min_degree_node, node) not in G_comp.edges() and
+            #               (min_degree_node, node) not in forbidden_edges]
+            candidates = G_comp.nodes() - {min_degree_node} - set(G_comp.neighbors(min_degree_node)) - \
+                         set(forbidden_edges)
             if not candidates:
                 return None, None
             target_node = min(candidates, key=lambda x: self.instance.weight[min_degree_node, x])
@@ -166,22 +205,29 @@ class Solution:
 
         return new_x, G_comp
 
-    def swap_nodes(self, config, n):
+    def swap_nodes_neighborhood(self, config, n):
         n = int(n)
         # Iterate over all choices of n nodes
         for nodes in combinations(self.instance.nodes, n):
-            # We will switch n_1 -> n_2, ... n_n -> n_1
-            new_x = self.x.copy()
+            sol = self.apply_swap_nodes(nodes)
+            yield sol
 
-            for a, b in zip(nodes, nodes[1:] + nodes[:1]):
-                new_x = self._swap_nodes(new_x, a, b)
+    def swap_nodes_random_neighbor(self, config, n):
+        n = int(n)
+        nodes = random.sample(self.instance.nodes, n)
+        return self.apply_swap_nodes(nodes)
 
-            new_G = nx.Graph()
-            new_G.add_nodes_from(self.instance.nodes)
-            new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
-            new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G)
+    def apply_swap_nodes(self, nodes):
+        # We will switch n_1 -> n_2, ... n_n -> n_1
+        new_x = self.x.copy()
+        for a, b in zip(nodes, nodes[1:] + nodes[:1]):
+            new_x = self._swap_nodes(new_x, a, b)
+        new_G = nx.Graph()
+        new_G.add_nodes_from(self.instance.nodes)
+        new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
+        new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G)
 
-            yield Solution(self.instance, new_x, components, new_G)
+        return Solution(self.instance, new_x, components, new_G)
 
     def _swap_nodes(self, new_x, a, b):
         G = nx.Graph()
@@ -204,36 +250,44 @@ class Solution:
         new_x = {e: 1 if e in G.edges() else 0 for e in self.instance.edges}
         return new_x
 
-    def move_nodes(self, config, n):
+    def move_nodes_neighborhood(self, config, n):
         n = int(n)
         # Iterate over all pairs of components
         for A, B in combinations(list(range(len(self.components))) + [-1], 2):
             if A == -1:
                 continue
-            A = self.components[A]
-            B = self.components[B] if B != -1 else set()
-            # Randomly choose n nodes from A (or the complete component if n is larger)
-            for nodes in random.sample(A, min(n, len(A))):
-                if type(nodes) == int:
-                    nodes = [nodes]
 
-                # We will move n_1 -> B, ... n_n -> B
-                new_x = self.x.copy()
-                new_G = self.graph.copy()
+            sol = self.solution_from_move_nodes(A, B, n)
 
-                subgraph_to_move = new_G.subgraph(nodes).copy()
+            yield sol
 
-                edges_to_remove = [(u, v) for u, v in new_G.edges(A) if v not in A]
-                new_G.remove_edges_from(edges_to_remove)
+    def move_nodes_random_neighbor(self, config, n):
+        n = int(n)
+        A = random.choice(list(range(len(self.components))))
+        B = random.choice(list(range(len(self.components))) + [-1])
+        sol = self.solution_from_move_nodes(A, B, n)
+        return sol
 
-                new_G.add_edges_from([(u, v) for u, v in subgraph_to_move.edges() if v in B])
-                if B:
-                    # If B is not empty, connect one element to the nodes in B
-                    new_G.add_edge(nodes[0], random.choice(list(B)))
-
-                new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G)
-
-                yield Solution(self.instance, new_x, nx.connected_components(new_G), new_G)
+    def solution_from_move_nodes(self, A, B, n):
+        A = self.components[A]
+        B = self.components[B] if B != -1 else set()
+        # Randomly choose n nodes from A (or the complete component if n is larger)
+        nodes = random.sample(A, min(n, len(A)))
+        if type(nodes) == int:
+            nodes = [nodes]
+        # We will move n_1 -> B, ... n_n -> B
+        new_x = self.x.copy()
+        new_G = self.graph.copy()
+        subgraph_to_move = new_G.subgraph(nodes).copy()
+        edges_to_remove = [(u, v) for u, v in new_G.edges(A) if v not in A]
+        new_G.remove_edges_from(edges_to_remove)
+        new_G.add_edges_from([(u, v) for u, v in subgraph_to_move.edges() if v in B])
+        if B:
+            # If B is not empty, connect one element to the nodes in B
+            new_G.add_edge(nodes[0], random.choice(list(B)))
+        new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G)
+        sol = Solution(self.instance, new_x, nx.connected_components(new_G), new_G)
+        return sol
 
     def _move_node(self, new_x, new_G, node, B):
         # Disconnect node
@@ -253,7 +307,3 @@ class Solution:
             new_G.add_edge(node, new_neighbor)
 
         return new_x, new_G
-
-
-
-
