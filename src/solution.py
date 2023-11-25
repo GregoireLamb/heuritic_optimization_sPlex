@@ -7,11 +7,12 @@ import networkx as nx
 from matplotlib import pyplot as plt
 
 from src.config import Config
-from src.utils import Instance, is_s_plex
+from src.utils import Instance, is_s_plex, AbstractSol
 
 
-class Solution:
+class Solution(AbstractSol):
     def __init__(self, instance: Instance, x: dict, components: list = None, graph: nx.Graph = None, obj: float = None):
+        super().__init__()
         self.instance = instance
         self.x = x  # Dictionary with edge as key and 1 if edge is in final graph, 0 otherwise
 
@@ -24,7 +25,7 @@ class Solution:
 
         # List of components. Each component is a set of nodes
         self.components: List[Set] = components if components is not None else list(nx.connected_components(self.graph))
-        self.obj = obj  # Objective value of the solution. Can be None if not computed
+        self.obj_val = obj  # Objective value of the solution. Can be None if not computed
 
     def _get_components(self):
         """
@@ -41,14 +42,16 @@ class Solution:
         """
         Evaluate the solution
         """
-        if self.obj is not None:
-            return self.obj
+        if self.obj_val is not None:
+            return self.obj_val
         obj = 0
         for edge in self.instance.edges:
             if self.x[edge] != self.instance.in_instance[edge]:
                 obj += self.instance.weight[edge]
-        self.obj = obj
+        self.obj_val = obj
         return obj
+
+    obj = evaluate
 
     def is_feasible(self):
         """
@@ -307,3 +310,8 @@ class Solution:
             new_G.add_edge(node, new_neighbor)
 
         return new_x, new_G
+
+    def update_solution(self, solution: 'Solution'):
+        self.x = solution.x
+        self.graph = solution.graph
+        self.components = solution.components

@@ -4,6 +4,7 @@ from src.config import Config
 from src.instance_loader import InstanceLoader
 from src.methods.construction_heuristic import ConstructionHeuristic
 from src.methods.local_search import LocalSearch
+from src.methods.simulated_annealing import SimulatedAnnealing
 
 if __name__ == '__main__':
     prof = Profiler()
@@ -20,15 +21,22 @@ if __name__ == '__main__':
         if config.method == 'construction_heuristic':
             method = ConstructionHeuristic(params=config.method_params)
             solution = method.solve(instance)
-        elif config.method == 'local_search':
+        else:
+            # These methods improve an initial solution
             solution = instance_loader.get_instance_saved_solution(instance)
             if solution is None:
                 method = ConstructionHeuristic(params=config.method_params)
                 solution = method.solve(instance)
-            method = LocalSearch(config, params=config.method_params)
-            solution = method.solve(instance, solution)
-        else:
-            raise ValueError(f'Method {config.method} not implemented')
+
+            # Improve solution
+            if config.method == 'local_search':
+                method = LocalSearch(config, params=config.method_params)
+                solution = method.solve(instance, solution)
+            elif config.method == 'simulated_annealing':
+                method = SimulatedAnnealing(config, params=config.method_params)
+                solution = method.solve(instance, solution)
+            else:
+                raise ValueError(f'Method {config.method} not implemented')
 
         assert solution.is_feasible(), 'Solution is not feasible'
         print(f'Final solution cost: {solution.evaluate()}', end='\n\n')
