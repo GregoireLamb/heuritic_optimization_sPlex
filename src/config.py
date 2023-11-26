@@ -17,6 +17,8 @@ class Config:
         self.instance_type = self.__config["execute"]["instance_type"]
         self.instance_indices = self.__config["execute"]["instance_indices"]
         self.method = self.__config["execute"]["method"]
+        self.det_or_random_construction = 'randomized' \
+            if self.__config["params"]["construction_heuristic"]["randomized"] else 'deterministic'
 
         # Param dictionary for the particular method
         self.method_params = self.__config["params"][self.method]

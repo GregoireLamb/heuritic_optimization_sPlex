@@ -1,5 +1,6 @@
 import os
 from src.config import Config
+from src.solution import Solution
 from src.utils import Instance
 
 
@@ -43,3 +44,24 @@ class InstanceLoader:
 
         return instances
 
+    def get_instance_saved_solution(self, instance: Instance):
+        """
+        Get the saved solution for the given instance name
+        """
+        print(f'Looking for saved solution for instance {instance.name}')
+        path = f'{self._config.solutions_dir}/construction_heuristic/' \
+               f'{self._config.det_or_random_construction}/{instance.name}.txt'
+        if not os.path.isfile(path):
+            print(f'No saved construction heuristic '
+                  f'({self._config.det_or_random_construction}) solution for instance {instance.name}')
+            return None
+
+        print(f'Loading saved solution for instance {instance.name}')
+        with open(path, 'r') as f:
+            lines = f.readlines()
+            x = {v: 0 for v in instance.edges}
+            for line in lines[1:]:
+                i, j = line.split()
+                x[(int(i), int(j))] = 1
+
+        return Solution(instance, x)

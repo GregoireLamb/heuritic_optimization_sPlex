@@ -1,3 +1,6 @@
+from abc import abstractmethod
+from typing import Generator
+
 import networkx as nx
 
 
@@ -40,3 +43,72 @@ def is_s_plex(s, G: nx.Graph):
     :return: True if G is a k-plex, False otherwise
     """
     return min(dict(G.degree).values()) >= len(G.nodes()) - s
+
+
+class AbstractSol:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def is_better_obj(cls, obj1: float, obj2: float) -> bool:
+        """Return True if the obj1 is a better objective value than obj2."""
+        return obj1 < obj2
+
+    @classmethod
+    def is_worse_obj(cls, obj1: float, obj2: float) -> bool:
+        """Return True if obj1 is a worse objective value than obj2."""
+        return obj1 > obj2
+
+    def check(self):
+        assert self.is_feasible(), f'Solution is not feasible!'
+
+    def is_better(self, other: 'AbstractSol') -> bool:
+        """Return True if the current solution is better in terms of the objective function than the other."""
+        return self.obj() < other.obj()
+
+    def is_worse(self, other: 'AbstractSol') -> bool:
+        """Return True if the current solution is worse in terms of the objective function than the other."""
+        return self.obj() > other.obj()
+
+    @abstractmethod
+    def obj(self) -> float:
+        """Return the objective value of the solution."""
+        pass
+
+    @abstractmethod
+    def is_feasible(self) -> bool:
+        """Return True if the solution is feasible."""
+        pass
+
+    @abstractmethod
+    def update_solution(self, other: 'AbstractSol'):
+        """Update the current solution with the other solution."""
+        pass
+
+    @abstractmethod
+    def get_random_neighbor(self, type: str, neighborhood_config: dict) -> 'Solution':
+        """
+        Generate a random neighbor of the current solution
+        :param type: type of neighborhood
+        :param neighborhood_config: dictionary with neighborhood parameters
+        :return: random neighbor
+        """
+        pass
+
+    @abstractmethod
+    def evaluate(self) -> float:
+        """
+        Evaluate the current solution
+        :return: objective value of the solution
+        """
+        pass
+
+    @abstractmethod
+    def generate_neighborhood(self, type: str, neighborhood_config: dict) -> Generator['AbstractSol', None, None]:
+        """
+        Generate a neighborhood of the current solution
+        :param type: type of neighborhood
+        :param neighborhood_config: dictionary with neighborhood parameters
+        :return: list of neighbors
+        """
+        pass
