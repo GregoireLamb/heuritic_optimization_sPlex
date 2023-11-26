@@ -110,6 +110,11 @@ class Solution:
             raise ValueError(f'Neighborhood type {type} does not exist')
 
     def kflips_neighborhood(self, config, k):
+        """"
+        Chose k edges and flip them (remove them)
+        if "remove_edge_in_instance_allowed" is False,
+        edges already in the instance will not be removed
+        """
         k = int(k)
         edges = {e for e in self.instance.edges if self.x[e]}
         if not config['remove_edge_in_instance_allowed']:
@@ -167,6 +172,9 @@ class Solution:
         return new_x, G_comp
 
     def swap_nodes(self, config, n):
+        """
+        Chose a node and swap their connexions
+        """
         n = int(n)
         # Iterate over all choices of n nodes
         for nodes in combinations(self.instance.nodes, n):
@@ -174,7 +182,7 @@ class Solution:
             new_x = self.x.copy()
 
             for a, b in zip(nodes, nodes[1:] + nodes[:1]):
-                new_x = self._swap_nodes(new_x, a, b)
+                new_x = self._swap_2_nodes(new_x, a, b)
 
             new_G = nx.Graph()
             new_G.add_nodes_from(self.instance.nodes)
@@ -183,7 +191,7 @@ class Solution:
 
             yield Solution(self.instance, new_x, components, new_G)
 
-    def _swap_nodes(self, new_x, a, b):
+    def _swap_2_nodes(self, new_x, a, b):
         G = nx.Graph()
         G.add_edges_from([k for k, v in new_x.items() if v])
         neighbors_a = list(G.neighbors(a))
@@ -205,6 +213,9 @@ class Solution:
         return new_x
 
     def move_nodes(self, config, n):
+        """
+        Chose a node and move it to another component
+        """
         n = int(n)
         # Iterate over all pairs of components
         for A, B in combinations(list(range(len(self.components))) + [-1], 2):
@@ -213,7 +224,7 @@ class Solution:
             A = self.components[A]
             B = self.components[B] if B != -1 else set()
             # Randomly choose n nodes from A (or the complete component if n is larger)
-            for nodes in random.sample(A, min(n, len(A))):
+            for nodes in random.sample(sorted(A), min(n, len(A))):
                 if type(nodes) == int:
                     nodes = [nodes]
 
@@ -235,7 +246,7 @@ class Solution:
 
                 yield Solution(self.instance, new_x, nx.connected_components(new_G), new_G)
 
-    def _move_node(self, new_x, new_G, node, B):
+    def _move_1_node(self, new_x, new_G, node, B):
         # Disconnect node
         neighbors = list(new_G.neighbors(node))
         for neighbor in neighbors:
