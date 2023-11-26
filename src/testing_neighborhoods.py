@@ -12,7 +12,12 @@ def test_neighborhoods():
     instances = instance_loader.load_instances()
     instance = instances[0]
 
-    solution = ConstructionHeuristic(params=config.method_params).solve(instance)
+    solution = instance_loader.get_instance_saved_solution(instance)
+    if solution is None:
+        assert config.method == 'construction_heuristic', \
+            f'Method must be construction heuristic because there is no saved solution for instance {instance.name}'
+        solution = ConstructionHeuristic(params=config.method_params).solve(instance)
+
     print(f'Initial solution cost: {solution.evaluate()}')
     print(f'Feasible: {solution.is_feasible()}')
     print(solution)
