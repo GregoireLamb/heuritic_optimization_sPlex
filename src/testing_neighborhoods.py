@@ -5,7 +5,7 @@ from src.instance_loader import InstanceLoader
 from src.methods.construction_heuristic import ConstructionHeuristic
 
 
-def test_neighborhoods():
+def evaluate_neighborhood():
     # Generate a solution using a deterministic construction heuristic
     config = Config()
     instance_loader = InstanceLoader(config)
@@ -22,9 +22,10 @@ def test_neighborhoods():
     print(f'Feasible: {solution.is_feasible()}')
     print(solution)
 
-    to_test = ['kflips_1', 'kflips_2', 'movenodes_2', 'nodeswap_2']
+    to_test = ['kflips_1', 'kflips_2']
+    # to_test = ['kflips_1', 'kflips_2', 'movenodes_2', 'nodeswap_2']
 
-    n_neighbors_test = 200
+    n_neighbors_test = 300
 
     print(f'-----------------------------------------------------------------\n'
           f'---- Testing neighborhoods with {n_neighbors_test} neighbors ----\n'
@@ -61,4 +62,4 @@ def test_neighborhoods():
 
 
 if __name__ == '__main__':
-    test_neighborhoods()
+    evaluate_neighborhood()
