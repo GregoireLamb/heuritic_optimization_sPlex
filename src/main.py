@@ -13,7 +13,6 @@ if __name__ == '__main__':
     config = Config()
     instance_loader = InstanceLoader(config)
     instances = instance_loader.load_instances()
-
     for i, instance in enumerate(instances):
         print(f'Running instance {i + 1} / {len(instances)}')
         print(f'Instance information:\n{instance}')
@@ -43,5 +42,11 @@ if __name__ == '__main__':
         print(solution)
         solution.save(config)
 
+
+        new_solution = instance_loader.get_instance_saved_solution(instance)
+        assert new_solution.evaluate() == solution.evaluate(), 'Saved solution is not the same as the current solution'
+
+
     prof.stop()
     print(prof.output_text(unicode=True, color=True))
+

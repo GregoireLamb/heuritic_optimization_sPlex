@@ -163,6 +163,7 @@ class Solution(AbstractSol):
 
     def remove_edges(self, edges_to_remove):
         # Remove the k edges
+        edges_to_remove = set(edges_to_remove).union({(v, u) for u, v in edges_to_remove})
         new_x = {e: 0 if e in edges_to_remove else self.x[e] for e in self.instance.edges}
         new_G = nx.Graph()
         new_G.add_nodes_from(self.instance.nodes)
@@ -194,17 +195,15 @@ class Solution(AbstractSol):
                 if n < m and new_x[n, m]:
                     G_comp.add_edge(n, m)
         while not is_s_plex(self.instance.s, G_comp):
-            min_degree_node = min(G_comp.nodes(), key=lambda x: G_comp.degree(x))
-            # candidates = [node for node in G_comp.nodes() if node != min_degree_node and
-            #               (min_degree_node, node) not in G_comp.edges() and
-            #               (min_degree_node, node) not in forbidden_edges]
-            candidates = G_comp.nodes() - {min_degree_node} - set(G_comp.neighbors(min_degree_node)) - \
-                         set(forbidden_edges)
+            min_degree_node = min(G_comp.nodes(), key=lambda x: G_comp.degree(x)) # < |S|-k
+            candidates = [node for node in G_comp.nodes() if node != min_degree_node and
+                          (min_degree_node, node) not in G_comp.edges() and # make sur a,b is not possible if b,a is forbidden
+                          (min_degree_node, node) not in forbidden_edges]
             if not candidates:
                 return None, None
             target_node = min(candidates, key=lambda x: self.instance.weight[min_degree_node, x])
-            G_comp.add_edge(min_degree_node, target_node)
-            new_x[min_degree_node, target_node] = 1
+            G_comp.add_edge(min(min_degree_node, target_node), max(min_degree_node, target_node))
+            new_x[min(min_degree_node, target_node), max(min_degree_node, target_node)] = 1
 
         return new_x, G_comp
 

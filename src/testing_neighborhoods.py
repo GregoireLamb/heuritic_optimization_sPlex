@@ -22,7 +22,7 @@ def evaluate_neighborhood():
     print(f'Feasible: {solution.is_feasible()}')
     print(solution)
 
-    to_test = ['kflips_1', 'kflips_2']
+    to_test = ['kflips_10']
     # to_test = ['kflips_1', 'kflips_2', 'movenodes_2', 'nodeswap_2']
 
     n_neighbors_test = 300
@@ -48,6 +48,9 @@ def evaluate_neighborhood():
             if not neighbor.is_feasible():
                 print(f'Infeasible neighbor!')
 
+        if not costs:
+            print(f'No neighbors could be generated!')
+            return
         print(f' - Neighborhood size: {len(costs)}')
         print(f' - Current solution cost: {solution.evaluate()}')
         print(f' - Best neighbor cost: {min(costs)}')

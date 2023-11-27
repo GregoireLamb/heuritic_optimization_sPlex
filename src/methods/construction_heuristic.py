@@ -110,7 +110,7 @@ class ConstructionHeuristic:
         """
         G = self.create_component_graph(k)
         self.make_s_plex(G, 0)
-        return G.edges()
+        return set((min(i,j), max(i,j)) for i,j in G.edges())
 
     def make_s_plex(self, G, cost):
         """
@@ -135,7 +135,7 @@ class ConstructionHeuristic:
 
     def create_component_graph(self, k, i=None):
         """
-        Create a graph with the nodes in component k
+        Create a graph with the nodes in component k and the pre-existing edges
         :param k: component
         :param i: node to add
         :return: graph

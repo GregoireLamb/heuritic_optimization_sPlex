@@ -59,9 +59,10 @@ class InstanceLoader:
         print(f'Loading saved solution for instance {instance.name}')
         with open(path, 'r') as f:
             lines = f.readlines()
-            x = {v: 0 for v in instance.edges}
+            x = {edge:value for edge, value in instance.in_instance.items() if edge[0] < edge[1]}
+
             for line in lines[1:]:
                 i, j = line.split()
-                x[(int(i), int(j))] = 1
+                x[(int(i), int(j))] = 1-x[(int(i), int(j))]
 
         return Solution(instance, x)
