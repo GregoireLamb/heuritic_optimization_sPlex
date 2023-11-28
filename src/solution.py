@@ -123,7 +123,6 @@ class Solution(AbstractSol):
             raise ValueError(f'Neighborhood type {type} does not exist')
 
     def get_random_neighbor(self, type: str, neighborhood_config: dict) -> 'Solution':
-        # TODO why random ?
         """
         Generate a random neighbor of the current solution
         :param type: type of neighborhood

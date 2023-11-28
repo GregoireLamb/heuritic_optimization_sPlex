@@ -5,7 +5,7 @@ from src.instance_loader import InstanceLoader
 from src.methods.construction_heuristic import ConstructionHeuristic
 from src.methods.local_search import LocalSearch
 from src.methods.simulated_annealing import SimulatedAnnealing
-from src.methods.vns import Vns
+from src.methods.vnd import VND
 
 if __name__ == '__main__':
     prof = Profiler()
@@ -36,7 +36,7 @@ if __name__ == '__main__':
                 method = SimulatedAnnealing(config, params=config.method_params)
                 solution = method.solve(instance, solution)
             elif config.method == 'variable_neighborhood_descent':
-                method = Vns(config, params=config.method_params)
+                method = VND(config, params=config.method_params)
                 solution = method.solve(instance, solution)
             else:
                 raise ValueError(f'Method {config.method} not implemented')
