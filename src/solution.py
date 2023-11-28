@@ -27,6 +27,15 @@ class Solution(AbstractSol):
         self.components: List[Set] = components if components is not None else list(nx.connected_components(self.graph))
         self.obj_val = obj  # Objective value of the solution. Can be None if not computed
 
+    def copy(self):
+        return Solution(self.instance, self.x.copy(), self.components.copy(), self.graph.copy(), self.obj_val)
+
+    def copy_from(self, other: 'Solution'):
+        self.x = other.x.copy()
+        self.components = other.components.copy()
+        self.graph = other.graph.copy()
+        self.obj_val = other.obj_val
+
     def _get_components(self):
         """
         Compute the components of the solution
@@ -114,6 +123,7 @@ class Solution(AbstractSol):
             raise ValueError(f'Neighborhood type {type} does not exist')
 
     def get_random_neighbor(self, type: str, neighborhood_config: dict) -> 'Solution':
+        # TODO why random ?
         """
         Generate a random neighbor of the current solution
         :param type: type of neighborhood
@@ -314,3 +324,4 @@ class Solution(AbstractSol):
         self.x = solution.x
         self.graph = solution.graph
         self.components = solution.components
+
