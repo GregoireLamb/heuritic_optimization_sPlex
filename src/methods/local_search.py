@@ -19,6 +19,8 @@ class LocalSearch:
             self._step_function = 'first_improvement'
 
         self._time_limit = params['time_limit']
+        self._time_limit = params['it_limit']
+        self.silent = params['silent']
 
         self._instance = None
         self._best_found_solution = None
@@ -35,17 +37,20 @@ class LocalSearch:
         self._solution = solution
         self._best_found_solution = solution
 
-        print(f'\n\n--- Local Search ---')
-        print(f'    Step function: {self._step_function}')
-        print(f'    Neighborhood: {self._neighborhood}')
-        print(f'    Time limit: {self._time_limit}')
-        print(f'    Initial solution cost: {self._solution.evaluate()}\n\n')
+        if not self.silent:
+            print(f'\n\n--- Local Search ---')
+            print(f'    Step function: {self._step_function}')
+            print(f'    Neighborhood: {self._neighborhood}')
+            print(f'    Time limit: {self._time_limit}')
+            print(f'    Initial solution cost: {self._solution.evaluate()}\n\n')
 
         start_time = time.time()
         it = 0
-        while True:
+        while it < self._time_limit:
             it += 1
-            print(f'Iteration {it}. Current incumbent cost: {self._solution.evaluate()}')
+            # Locql i,prove,nt
+            if not self.silent:
+                print(f'Iteration {it}. Current incumbent cost: {self._solution.evaluate()}')
             if time.time() - start_time > self._time_limit:
                 break
 
@@ -71,7 +76,8 @@ class LocalSearch:
                     best_cost = neighbor.evaluate()
                     if self._step_function == 'first_improvement':
                         break
-            print(f'Explored {explored_neighbors} neighbors')
+            if not self.silent:
+                print(f'Explored {explored_neighbors} neighbors')
             self._solution = best_neighbor
 
         return self._solution if self._best_found_solution.evaluate() > self._solution.evaluate() \

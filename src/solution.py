@@ -33,6 +33,15 @@ class Solution(AbstractSol):
         """
         return list(nx.connected_components(self.graph))
 
+    def copy(self):
+        return Solution(self.instance, self.x.copy(), self.components.copy(), self.graph.copy(), self.obj_val)
+
+    def copy_from(self, other: 'Solution'):
+        self.x = other.x.copy()
+        self.components = other.components.copy()
+        self.graph = other.graph.copy()
+        self.obj_val = other.obj_val
+
     def __repr__(self):
         nx.draw(self.graph, with_labels=True)
         plt.show()

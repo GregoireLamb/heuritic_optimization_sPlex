@@ -3,6 +3,7 @@ from pyinstrument import Profiler
 from src.config import Config
 from src.instance_loader import InstanceLoader
 from src.methods.construction_heuristic import ConstructionHeuristic
+from src.methods.grasp import GRASP
 from src.methods.local_search import LocalSearch
 from src.methods.simulated_annealing import SimulatedAnnealing
 from src.methods.vnd import VND
@@ -39,6 +40,9 @@ if __name__ == '__main__':
                 solution = method.solve(instance, solution)
             elif config.method == 'variable_neighborhood_descent':
                 method = VND(config, params=config.this_method_params)
+                solution = method.solve(instance, solution)
+            elif config.method == 'greedy_randomized_adaptive_search_procedure':
+                method = GRASP(config, params=config.this_method_params)
                 solution = method.solve(instance, solution)
             else:
                 raise ValueError(f'Method {config.method} not implemented')

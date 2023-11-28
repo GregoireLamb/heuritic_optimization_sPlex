@@ -14,6 +14,8 @@ def local_improve(sol: Solution, _par: Any, _res: Result):
     # Set configuration according to _par
     config.method_params['local_search']['neighborhood'] = _par[0]
     config.method_params['local_search']['step_function'] = _par[1]
+    # Force local search iteration limit to be one
+    config.method_params['local_search']['it_limit'] = 1
     local_search = LocalSearch(config, params=config.method_params['local_search'])
     new_sol = local_search.solve(sol.instance, sol)
     sol.update_solution(new_sol)
