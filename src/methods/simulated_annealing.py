@@ -16,7 +16,7 @@ class SimulatedAnnealing:
         self._own_settings = params
 
         def random_move_delta_eval(sol: Solution) -> [Solution, float]:
-            neighborhood_structure = random.choice(config.method_params['neighborhoods'])
+            neighborhood_structure = random.choice(config.this_method_params['neighborhoods'])
             random_neighbor = sol.get_random_neighbor(type=neighborhood_structure, neighborhood_config=config.neighborhood_params)
             delta = random_neighbor.evaluate() - sol.evaluate()
             return random_neighbor, delta

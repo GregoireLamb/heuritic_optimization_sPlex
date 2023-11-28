@@ -10,9 +10,13 @@ class LocalSearch:
         self._config = config
 
         self._step_function = params['step_function']
-        assert self._step_function in ['best_improvement', 'first_improvement', 'random'], \
+        assert self._step_function in ['best_improvement', 'first_improvement', 'random', 'best', 'first'], \
             'Step function must be one of [best_improvement, first_improvement, random]'
         self._neighborhood = params['neighborhood']
+        if self._step_function == 'best':
+            self._step_function = 'best_improvement'
+        elif self._step_function == 'first':
+            self._step_function = 'first_improvement'
 
         self._time_limit = params['time_limit']
 

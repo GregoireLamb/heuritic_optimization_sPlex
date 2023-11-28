@@ -21,7 +21,9 @@ class Config:
             if self.__config["params"]["construction_heuristic"]["randomized"] else 'deterministic'
 
         # Param dictionary for the particular method
-        self.method_params = self.__config["params"][self.method]
+        self.this_method_params = self.__config["params"][self.method]
+        self.method_params = self.__config["params"]
+
         self.neighborhood_params = self.__config["params"]["neighborhood_params"]
 
         # Paths

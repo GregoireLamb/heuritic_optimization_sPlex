@@ -1,36 +1,37 @@
+from typing import Any
+
 from pymhlib.gvns import GVNS
-from pymhlib.scheduler import Method
+from pymhlib.scheduler import Method, Result
 
 from src.config import Config
 from src.solution import Solution
 from src.utils import Instance
-
+from src.methods.local_search import LocalSearch
 config = Config()
 
 
+def local_improve(sol: Solution, _par: Any, _res: Result):
+    # Set configuration according to _par
+    config.method_params['local_search']['neighborhood'] = _par[0]
+    config.method_params['local_search']['step_function'] = _par[1]
+    local_search = LocalSearch(config, params=config.method_params['local_search'])
+    new_sol = local_search.solve(sol.instance, sol)
+    sol.update_solution(new_sol)
 
-def make_method_kflip(sol: Solution, par, res):
-    type = "kflips_"+str(par[0])
-    return sol.generate_neighborhood(type, config.neighborhood_params.get("kflips", {}))
-
-def make_method_movenodes(sol: Solution, par, res):
-    type = "movenodes_"+str(par[0])
-    return sol.generate_neighborhood(type, config.neighborhood_params.get("movenodes", {}))
-
-def make_method_nodeswap(sol: Solution, par, res):
-    type = "nodeswap_"+str(par[0])
-    return sol.generate_neighborhood(type, config.neighborhood_params.get("nodeswap", {}))
 
 class VND:
     def __init__(self, config: Config, params=None):
-        self._config = config
+        self._solution = None
         self._instance = None
+        self._config = config
         self._own_settings = params
+        self._params = params
 
         self._meths_cs = []
-        self._meths_li = params['meths_li']
-        self._meths_sh = []
-
+        self._meths_li = [Method(f'local_improve_{neigh}_{step}', local_improve, (neigh, step)) for
+                          neigh, step in self._params['meths_li']]
+        self._meths_sh = [Method(f'shaking_{neigh}_{step}', local_improve, (neigh, step)) for
+                          neigh, step in self._params['meths_sh']]
 
     def solve(self, instance: Instance, solution: Solution) -> Solution:
         """
@@ -41,22 +42,10 @@ class VND:
         """
         self._instance = instance
         self._solution = solution
-        method_li= []
-
-        for meth in self._meths_li:
-            type, params = meth.split('_', 1)
-            if type == 'kflips':
-                method_li.append(Method(type, make_method_kflip, [params]))
-            elif type == 'movenodes':
-                method_li.append(Method(type, make_method_movenodes, [params]))
-            elif type == 'nodeswap':
-                method_li.append(Method(type, make_method_nodeswap, [params]))
-            else:
-                raise ValueError(f'Method {type} not implemented')
 
         gvns = GVNS(sol=solution,
                     meths_ch=self._meths_cs,
-                    meths_li=method_li,
+                    meths_li=self._meths_li,
                     meths_sh=self._meths_sh,
                     own_settings=self._own_settings,
                     consider_initial_sol=True)
