@@ -26,10 +26,11 @@ if __name__ == '__main__':
             # These methods improve an initial solution
             solution = instance_loader.get_instance_saved_solution(instance)
             if solution is None:
+                print(f'No saved solution for instance {instance.name}, generating one with construction heuristic')
                 method = ConstructionHeuristic(params=config.method_params['construction_heuristic'])
                 solution = method.solve(instance)
                 solution.save(config,
-                              path=f'solutions/construction_heuristic/{config.det_or_random_construction}')
+                              path=f'{config.solutions_dir}/construction_heuristic/{config.det_or_random_construction}')
 
             # Improve solution
             if config.method == 'local_search':
