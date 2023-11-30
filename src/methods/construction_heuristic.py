@@ -1,4 +1,5 @@
 import math
+from itertools import combinations
 
 import networkx as nx
 import random
@@ -18,8 +19,9 @@ class ConstructionHeuristic:
         self._x = {}
         self._components = []
         self._s = -1
+        self.top_kth = params['top_kth']
 
-    def solve(self, instance: Instance) -> Solution:
+    def solve(self, instance: Instance, last_compoment_only=True) -> Solution: #TODO put last_compoment_only to false by default
         """
         Solve the instance using the deterministic construction heuristic
         :param instance: instance to solve
@@ -30,43 +32,39 @@ class ConstructionHeuristic:
 
         self._x = {e: 0 for e in instance.edges}
 
-        to_add = set(instance.nodes)
+        to_add = instance.nodes.copy()
 
-        while len(to_add) > 0:
+        for i in to_add:
+            if i % 10 == 0: #TODO remove
+                print(f'{i} nodes left to add')
             if self._randomized:
-                best_option_dict = {}
-            best_cost, best_component, best_node = 1e10, None, None
-            for i in to_add:
-                # New component
-                cost = self.compute_cost_of_new_component(i)
+                best_option_dict = {}# component_index: (cost)
+
+            # New component
+            best_cost = self.compute_cost_of_new_component(i)
+            best_component = None
+            if self._randomized:
+                best_option_dict[None] = best_cost
+
+            # Existing component
+            for index, k in enumerate(self._components):
+                cost = self.compute_insertion_cost_to_component(i, k)
+                if self._randomized:
+                    best_option_dict[index] = cost
                 if cost < best_cost:
                     best_cost = cost
-                    best_component = None
-                    best_node = i
-
-                # Existing component
-                for index, k in enumerate(self._components):
-                    cost = self.compute_insertion_cost_to_component(i, k)
-                    if cost < best_cost:
-                        best_cost = cost
-                        best_component = index
-                        best_node = i
-                if self._randomized:
-                    best_option_dict[i] = (best_cost, best_component, best_node)
+                    best_component = index
 
             if self._randomized:
-                best_option_list = sorted(best_option_dict.items(), key=lambda x: x[1][0]) # Sort by cost
-                top_third_index = math.ceil(len(best_option_dict) / 3)
-                index = random.randint(0, top_third_index-1)
-                best_cost, best_component, best_node = best_option_list[index][1]
+                best_option_list = sorted(best_option_dict.items(), key=lambda x: x[1]) # Sort by cost
+                best_component = random.choice(best_option_list[:self.top_kth])[0]
 
             if best_component is None:
-                self._components.append({best_node})
+                self._components.append({i})
                 # print(f'Creating new component with node {best_node}, cost = {best_cost}')
             else:
-                self._components[best_component].add(best_node)
+                self._components[best_component].add(i)
                 # print(f'Adding node {best_node} to component {best_component}, cost = {best_cost}')
-            to_add.remove(best_node)
 
         for k in self._components:
             new_edges = self.get_edges_of_s_plex(k)
@@ -119,6 +117,13 @@ class ConstructionHeuristic:
         :param cost: current cost
         :return: cost of making G an s-plex
         """
+        # cost = 0
+        # if not is_s_plex(self._s, G):
+        #     all_node_pairs = combinations(G.nodes(), 2)
+        #     for node_pair in all_node_pairs:
+        #         if node_pair not in G.edges():
+        #             G.add_edge(*node_pair)
+        #             cost += self._instance.weight[node_pair]
         while not is_s_plex(self._s, G):
             min_degree_node = min(G.nodes(), key=lambda x: G.degree(x))
             best_node_to_add = -1
