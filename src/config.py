@@ -16,9 +16,12 @@ class Config:
         # Execution
         self.instance_type = self.__config["execute"]["instance_type"]
         self.instance_indices = self.__config["execute"]["instance_indices"]
+        if self.instance_indices == 'all':
+            self.instance_indices = None
         self.method = self.__config["execute"]["method"]
         self.det_or_random_construction = 'randomized' \
             if self.__config["params"]["construction_heuristic"]["randomized"] else 'deterministic'
+        self.execution = self.__config["execute"]["execution"]
 
         # Param dictionary for the particular method
         self.this_method_params = self.__config["params"][self.method]
@@ -29,6 +32,7 @@ class Config:
         # Paths
         self.instances_dir = f'{self.root}/{self.__config["paths"]["instances"]}'
         self.solutions_dir = f'{self.root}/{self.__config["paths"]["solutions"]}'
+        self.results_file = f'{self.root}/results/results.csv'
 
     def load_config(self):
         """
