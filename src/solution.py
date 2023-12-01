@@ -149,11 +149,11 @@ class Solution(AbstractSol):
 
         # Iterate over all possible k-choices of edges
         for edges_to_remove in combinations(edges, k):
-            sol, added_edges = self.remove_edges(edges_to_remove)
+            sol = self.remove_edges(edges_to_remove)
             if sol is None:
                 continue
 
-            sol.obj_val = self.obj_val + self.compute_delta(added_edges=added_edges, removed_edges=edges_to_remove)
+            # sol.obj_val = self.obj_val + self.compute_delta(added_edges=added_edges, removed_edges=edges_to_remove)
             yield sol
 
     def kflips_random_neighbor(self, config, k):
@@ -176,26 +176,24 @@ class Solution(AbstractSol):
         new_G = nx.Graph()
         new_G.add_nodes_from(self.instance.nodes)
         new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
-        new_x, components, new_G, created_edges = self._make_s_plex_on_full_graph(new_x, new_G, forbidden_edges=edges_to_remove) # created_edges is the set of edges newly created, no edges have been removed during the call
+        new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G, forbidden_edges=edges_to_remove) # created_edges is the set of edges newly created, no edges have been removed during the call
         if new_x is None:
-            return None, None
-        return Solution(self.instance, new_x, components, new_G), created_edges
+            return None
+        return Solution(self.instance, new_x, components, new_G)
 
     def _make_s_plex_on_full_graph(self, new_x, new_G, forbidden_edges=None):
         if forbidden_edges is None:
             forbidden_edges = set()
 
         components = list(nx.connected_components(new_G))
-        new_edges = set()
         for comp in components:
-            new_x, _, new_edges_comp = self._make_s_plex_on_component(new_x, comp, forbidden_edges)
+            new_x, _ = self._make_s_plex_on_component(new_x, comp, forbidden_edges)
             if new_x is None:
-                return None, None, None, None
-            new_edges = new_edges.union(new_edges_comp)
+                return None, None, None
 
             new_G.add_edges_from([k for k, v in new_x.items() if v])
             # assert is_s_plex(self.instance.s, nx.subgraph(new_G, comp)), f'Component {comp} is not an s-plex!'
-        return new_x, components, new_G, new_edges
+        return new_x, components, new_G
 
     def _make_s_plex_on_component(self, new_x, comp, forbidden_edges):
         new_edges = set()
@@ -216,11 +214,10 @@ class Solution(AbstractSol):
                 # return None, None, None
             target_node = min(candidates, key=lambda x: self.instance.weight[min_degree_node, x])
             new_edge = (min(min_degree_node, target_node), max(min_degree_node, target_node))
-            new_edges.add(new_edge)
             G_comp.add_edge(new_edge[0], new_edge[1])
             new_x[new_edge] = 1
 
-        return new_x, G_comp, new_edges
+        return new_x, G_comp
 
     def compute_add_rm_edges(self, new_x):
         add = {e for e in self.instance.edges if new_x[e] and not self.x[e]}
@@ -233,8 +230,8 @@ class Solution(AbstractSol):
         for nodes in combinations(self.instance.nodes, n):
             sol = self.apply_swap_nodes(nodes)
             add, remove = self.compute_add_rm_edges(sol.x)
-            delta = self.compute_delta(add, remove)
-            sol.obj_val = self.obj_val + delta
+            # delta = self.compute_delta(add, remove)
+            # sol.obj_val = self.obj_val + delta
             yield sol
 
     def swap_nodes_random_neighbor(self, config, n):
@@ -250,7 +247,7 @@ class Solution(AbstractSol):
         new_G = nx.Graph()
         new_G.add_nodes_from(self.instance.nodes)
         new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
-        new_x, components, new_G, _ = self._make_s_plex_on_full_graph(new_x, new_G)
+        new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G)
 
         return Solution(self.instance, new_x, components, new_G)
 
@@ -293,10 +290,10 @@ class Solution(AbstractSol):
         A = random.choice(list(range(len(self.components))))
         B = random.choice(list(range(len(self.components))) + [-1])
         sol = self.solution_from_move_nodes(A, B, n)
-        add, remove = self.compute_add_rm_edges(sol.x)
-        delta = self.compute_delta(add, remove)
+        # add, remove = self.compute_add_rm_edges(sol.x)
+        # delta = self.compute_delta(add, remove)
 
-        sol.obj_val = self.obj_val + delta
+        # sol.obj_val = self.obj_val + delta
         return sol
 
     def solution_from_move_nodes(self, A, B, n):
@@ -316,7 +313,7 @@ class Solution(AbstractSol):
         if B:
             # If B is not empty, connect one element to the nodes in B
             new_G.add_edge(nodes[0], random.choice(list(B)))
-        new_x, components, new_G, _ = self._make_s_plex_on_full_graph(new_x, new_G)
+        new_x, components, new_G = self._make_s_plex_on_full_graph(new_x, new_G)
         sol = Solution(self.instance, new_x, list(nx.connected_components(new_G)), new_G)
         return sol
 
