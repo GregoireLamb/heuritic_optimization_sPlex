@@ -188,7 +188,7 @@ class Solution(AbstractSol):
         components = list(nx.connected_components(new_G))
         new_edges = set()
         for comp in components:
-            new_x, new_G, new_edges_comp = self._make_s_plex_on_component(new_x, comp, forbidden_edges)
+            new_x, _, new_edges_comp = self._make_s_plex_on_component(new_x, comp, forbidden_edges)
             if new_x is None:
                 return None, None, None, None
             new_edges = new_edges.union(new_edges_comp)
@@ -256,6 +256,7 @@ class Solution(AbstractSol):
 
     def _swap_nodes(self, new_x, a, b):
         G = nx.Graph()
+        G.add_nodes_from(self.instance.nodes)
         G.add_edges_from([k for k, v in new_x.items() if v])
         neighbors_a = list(G.neighbors(a))
         neighbors_b = list(G.neighbors(b))

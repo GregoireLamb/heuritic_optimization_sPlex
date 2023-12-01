@@ -11,6 +11,7 @@ from src.methods.construction_heuristic import ConstructionHeuristic
 RESULTS_DF_COLUMNS = ['type', 'instance', 'method', 'execution_time', 'solution_cost', 'initial_solution_cost', 'configuration']
 
 
+
 if __name__ == '__main__':
     profiler = Profiler()
     profiler.start()
@@ -29,10 +30,10 @@ if __name__ == '__main__':
         df = pd.DataFrame(columns=RESULTS_DF_COLUMNS)
 
     # Check if there are instances that have not been run yet
-    already_run_instances = df[
-        (df['type'] == config.instance_type) &
-        (df.method == config.method)].instance.unique()
-    instances = [instance for instance in instances if instance.name not in already_run_instances]
+    # already_run_instances = df[
+    #     (df['type'] == config.instance_type) &
+    #     (df.method == config.method)].instance.unique()
+    # instances = [instance for instance in instances if instance.name not in already_run_instances]
 
     print(f'Running benchmarking for {len(instances)} instances: '
           f'{[instance.name for instance in instances]} ')
