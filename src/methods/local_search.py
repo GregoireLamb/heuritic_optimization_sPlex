@@ -58,9 +58,7 @@ class LocalSearch:
             if self._step_function == 'random':
                 self._solution = self._solution.get_random_neighbor(self._neighborhood,
                                                                     self._config.neighborhood_params)
-                if self._solution.evaluate() < self._best_found_solution.evaluate():
-                    self._best_found_solution = self._solution
-                continue
+                return self._solution
 
             best_neighbor = self._solution
             best_cost = self._solution.evaluate()
@@ -70,16 +68,16 @@ class LocalSearch:
                 if best_neighbor is None:
                     best_neighbor = neighbor
                     best_cost = neighbor.evaluate()
-                if time.time() - start_time > self._time_limit:
-                    break
                 if neighbor.evaluate() < best_cost:
                     best_neighbor = neighbor
                     best_cost = neighbor.evaluate()
+                    self._best_found_solution = best_neighbor
                     if self._step_function == 'first_improvement':
                         break
+                if time.time() - start_time > self._time_limit:
+                    break
             if not self.silent:
                 print(f'Explored {explored_neighbors} neighbors')
-            self._solution = best_neighbor
 
         return self._solution if self._best_found_solution.evaluate() > self._solution.evaluate() \
             else self._best_found_solution

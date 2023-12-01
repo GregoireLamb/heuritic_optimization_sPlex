@@ -19,6 +19,7 @@ def local_improve(sol: Solution, _par: Any, _res: Result):
     local_search = LocalSearch(config, params=config.method_params['local_search'])
     new_sol = local_search.solve(sol.instance, sol)
     sol.update_solution(new_sol)
+    sol.obj_val = new_sol.obj_val
 
 
 class VND:
@@ -43,9 +44,9 @@ class VND:
         :return: the best solution after local search procedure
         """
         self._instance = instance
-        self._solution = solution
+        self._solution = solution.copy()
 
-        gvns = GVNS(sol=solution,
+        gvns = GVNS(sol=self._solution,
                     meths_ch=self._meths_cs,
                     meths_li=self._meths_li,
                     meths_sh=self._meths_sh,

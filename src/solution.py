@@ -163,7 +163,7 @@ class Solution(AbstractSol):
             edges -= self.instance.edges_in_instance
 
         while True:
-            edges_to_remove = random.sample(edges, k)
+            edges_to_remove = random.sample(list(edges), k)
             sol, _ = self.remove_edges(edges_to_remove)
             # Check if feasible solution was found
             if sol is not None:
@@ -239,7 +239,7 @@ class Solution(AbstractSol):
 
     def swap_nodes_random_neighbor(self, config, n):
         n = int(n)
-        nodes = random.sample(self.instance.nodes, n)
+        nodes = random.sample(list(self.instance.nodes), n)
         return self.apply_swap_nodes(nodes)
 
     def apply_swap_nodes(self, nodes):
@@ -300,6 +300,7 @@ class Solution(AbstractSol):
         return sol
 
     def solution_from_move_nodes(self, A, B, n):
+        # print(f'Moving {n} nodes in solution from move nodes')
         A = self.components[A]
         B = self.components[B] if B != -1 else set()
         # Randomly choose n nodes from A (or the complete component if n is larger)
