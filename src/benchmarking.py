@@ -7,6 +7,7 @@ from src.config import Config
 from src.instance_loader import InstanceLoader
 from src.main import run_method
 from src.methods.construction_heuristic import ConstructionHeuristic
+from src.methods.grasp import GRASP
 
 RESULTS_DF_COLUMNS = ['type', 'instance', 'method', 'execution_time', 'solution_cost', 'initial_solution_cost', 'configuration']
 
@@ -47,6 +48,10 @@ if __name__ == '__main__':
             method = ConstructionHeuristic(params=config.this_method_params)
             solution = method.solve(instance)
             initial_solution = None
+        elif config.method == 'greedy_randomized_adaptive_search_procedure':
+            method = GRASP(config, params=config.this_method_params)
+            solution = method.solve(instance)
+            initial_solution = None
         else:
             initial_solution = instance_loader.get_instance_saved_solution(instance)
             assert initial_solution is not None, 'No saved deterministic initial solution for instance'
@@ -70,7 +75,6 @@ if __name__ == '__main__':
         df = pd.concat([df, row_df], ignore_index=True)
         df.to_csv(config.results_file, sep=';', decimal=',', index=False)
 
-    print(f'Running benchmarking')
     profiler.stop()
     print(profiler.output_text(unicode=True, color=True))
 

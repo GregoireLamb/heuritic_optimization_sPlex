@@ -6,7 +6,7 @@ import networkx as nx
 
 class Instance:
     """
-    Class that represents an instance of the S-Plex problem
+    Class that represents an instance of the S-Plex Editing problem
     """
 
     def __init__(self, s, n, m, edge_info, name):
