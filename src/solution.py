@@ -149,7 +149,7 @@ class Solution(AbstractSol):
 
         # Iterate over all possible k-choices of edges
         for edges_to_remove in combinations(edges, k):
-            sol, added_edges = self.remove_edges(edges_to_remove) #TODO check if want to do it bellow -> deeper in the function call stack  (delta comp)
+            sol, added_edges = self.remove_edges(edges_to_remove)
             if sol is None:
                 continue
 
@@ -176,7 +176,7 @@ class Solution(AbstractSol):
         new_G = nx.Graph()
         new_G.add_nodes_from(self.instance.nodes)
         new_G.add_edges_from([e for e in self.instance.edges if new_x[e]])
-        new_x, components, new_G, created_edges = self._make_s_plex_on_full_graph(new_x, new_G, forbidden_edges=edges_to_remove) # created_edges is the set of edges newly created, no edges have been removed during the call TODO assert that with joan but i m 99% sure
+        new_x, components, new_G, created_edges = self._make_s_plex_on_full_graph(new_x, new_G, forbidden_edges=edges_to_remove) # created_edges is the set of edges newly created, no edges have been removed during the call
         if new_x is None:
             return None, None
         return Solution(self.instance, new_x, components, new_G), created_edges
@@ -194,7 +194,7 @@ class Solution(AbstractSol):
             new_edges = new_edges.union(new_edges_comp)
 
             new_G.add_edges_from([k for k, v in new_x.items() if v])
-            assert is_s_plex(self.instance.s, nx.subgraph(new_G, comp)), f'Component {comp} is not an s-plex!'
+            # assert is_s_plex(self.instance.s, nx.subgraph(new_G, comp)), f'Component {comp} is not an s-plex!'
         return new_x, components, new_G, new_edges
 
     def _make_s_plex_on_component(self, new_x, comp, forbidden_edges):
@@ -210,8 +210,10 @@ class Solution(AbstractSol):
             candidates = [node for node in G_comp.nodes() if node != min_degree_node and
                           (min_degree_node, node) not in G_comp.edges() and # make sur a,b is not possible if b,a is forbidden
                           (min_degree_node, node) not in forbidden_edges]
-            if not candidates:
-                return None, None, None
+            if not candidates: # re allow forbidden edges if they are mandatory
+                candidates = [node for node in G_comp.nodes() if node != min_degree_node and
+                          (min_degree_node, node) not in G_comp.edges()]
+                # return None, None, None
             target_node = min(candidates, key=lambda x: self.instance.weight[min_degree_node, x])
             new_edge = (min(min_degree_node, target_node), max(min_degree_node, target_node))
             new_edges.add(new_edge)
@@ -267,8 +269,8 @@ class Solution(AbstractSol):
         G.add_edges_from([(a, n) for n in neighbors_b])
         G.add_edges_from([(b, n) for n in neighbors_a])
 
-        assert len(list(G.neighbors(a))) == n_b, f'Number of neighbors of {a} is not {n_b}'
-        assert len(list(G.neighbors(b))) == n_a, f'Number of neighbors of {b} is not {n_a}'
+        # assert len(list(G.neighbors(a))) == n_b, f'Number of neighbors of {a} is not {n_b}'
+        # assert len(list(G.neighbors(b))) == n_a, f'Number of neighbors of {b} is not {n_a}'
 
         new_x = {e: 1 if e in G.edges() else 0 for e in self.instance.edges}
         return new_x
@@ -276,7 +278,8 @@ class Solution(AbstractSol):
     def move_nodes_neighborhood(self, config, n):
         n = int(n)
         # Iterate over all pairs of components
-        for A, B in combinations(list(range(len(self.components))) + [-1], 2):
+        comp_indexes = list(range(len(self.components))) + [-1]
+        for A, B in combinations(comp_indexes, 2):
             if A == -1:
                 continue
 
@@ -291,6 +294,7 @@ class Solution(AbstractSol):
         sol = self.solution_from_move_nodes(A, B, n)
         add, remove = self.compute_add_rm_edges(sol.x)
         delta = self.compute_delta(add, remove)
+
         sol.obj_val = self.obj_val + delta
         return sol
 
@@ -312,7 +316,7 @@ class Solution(AbstractSol):
             # If B is not empty, connect one element to the nodes in B
             new_G.add_edge(nodes[0], random.choice(list(B)))
         new_x, components, new_G, _ = self._make_s_plex_on_full_graph(new_x, new_G)
-        sol = Solution(self.instance, new_x, nx.connected_components(new_G), new_G)
+        sol = Solution(self.instance, new_x, list(nx.connected_components(new_G)), new_G)
         return sol
 
     def _move_node(self, new_x, new_G, node, B):

@@ -44,16 +44,18 @@ class InstanceLoader:
 
         return instances
 
-    def get_instance_saved_solution(self, instance: Instance):
+    def get_instance_saved_solution(self, instance: Instance, method="construction_heuristic"):
         """
         Get the saved solution for the given instance name
         """
         print(f'Looking for saved solution for instance {instance.name}')
-        path = f'{self._config.solutions_dir}/construction_heuristic/' \
-               f'{self._config.det_or_random_construction}/{instance.name}.txt'
+        if method == "construction_heuristic":
+            path = f'{self._config.solutions_dir}/{method}/' \
+                   f'{self._config.det_or_random_construction}/{instance.name}.txt'
+        else:
+            path = f'{self._config.solutions_dir}/{method}/{instance.name}.txt'
         if not os.path.isfile(path):
-            print(f'No saved construction heuristic '
-                  f'({self._config.det_or_random_construction}) solution for instance {instance.name}')
+            print(f'No saved solution found for {method} for instance {instance.name}')
             return None
 
         print(f'Loading saved solution for instance {instance.name}')

@@ -1,3 +1,5 @@
+import time
+
 from pyinstrument import Profiler
 
 from src.config import Config
@@ -35,7 +37,10 @@ if __name__ == '__main__':
             # Improve solution
             if config.method == 'local_search':
                 method = LocalSearch(config, params=config.this_method_params)
+                # track_time_start = time.time()
                 solution = method.solve(instance, solution)
+                # track_time_end = time.time()
+                # print(f'Local search time: {track_time_end - track_time_start}')
             elif config.method == 'simulated_annealing':
                 method = SimulatedAnnealing(config, params=config.this_method_params)
                 solution = method.solve(instance, solution)
@@ -53,7 +58,7 @@ if __name__ == '__main__':
         print(solution)
         solution.save(config)
 
-        new_solution = instance_loader.get_instance_saved_solution(instance)
+        new_solution = instance_loader.get_instance_saved_solution(instance, method=config.method)
         assert new_solution.evaluate() == solution.evaluate(), \
             'Saved solution is not the same as the current solution'
 

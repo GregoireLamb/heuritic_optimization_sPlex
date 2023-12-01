@@ -19,7 +19,7 @@ class LocalSearch:
             self._step_function = 'first_improvement'
 
         self._time_limit = params['time_limit']
-        self._time_limit = params['it_limit']
+        self._it_limit = params['it_limit']
         self.silent = params['silent']
 
         self._instance = None
@@ -42,11 +42,12 @@ class LocalSearch:
             print(f'    Step function: {self._step_function}')
             print(f'    Neighborhood: {self._neighborhood}')
             print(f'    Time limit: {self._time_limit}')
+            print(f'    Iteration limit: {self._it_limit}')
             print(f'    Initial solution cost: {self._solution.evaluate()}\n\n')
 
         start_time = time.time()
         it = 0
-        while it < self._time_limit:
+        while it < self._it_limit:
             it += 1
             # Locql i,prove,nt
             if not self.silent:
