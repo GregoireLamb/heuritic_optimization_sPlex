@@ -9,12 +9,44 @@ from src.methods.grasp import GRASP
 from src.methods.local_search import LocalSearch
 from src.methods.simulated_annealing import SimulatedAnnealing
 from src.methods.vnd import VND
+from src.utils import Instance
+
+
+def run_method(config: Config, instance: Instance, instance_loader: InstanceLoader):
+    # These methods improve an initial solution
+    initial_solution = instance_loader.get_instance_saved_solution(instance)
+    if initial_solution is None:
+        print(f'No saved solution for instance {instance.name}, generating one with construction heuristic')
+        method = ConstructionHeuristic(params=config.method_params['construction_heuristic'])
+        initial_solution = method.solve(instance)
+        initial_solution.save(config,
+                              path=f'{config.solutions_dir}/construction_heuristic/{config.det_or_random_construction}')
+    # Improve solution
+    if config.method == 'local_search':
+        method = LocalSearch(config, params=config.this_method_params)
+        solution = method.solve(instance, initial_solution)
+    elif config.method == 'simulated_annealing':
+        method = SimulatedAnnealing(config, params=config.this_method_params)
+        solution = method.solve(instance, initial_solution)
+    elif config.method == 'variable_neighborhood_descent':
+        method = VND(config, params=config.this_method_params)
+        solution = method.solve(instance, initial_solution)
+    elif config.method == 'greedy_randomized_adaptive_search_procedure':
+        method = GRASP(config, params=config.this_method_params)
+        solution = method.solve(instance, initial_solution)
+    else:
+        raise ValueError(f'Method {config.method} not implemented')
+
+    return initial_solution, solution
+
 
 if __name__ == '__main__':
     prof = Profiler()
     prof.start()
 
     config = Config()
+
+    assert config.execution.lower() == 'normal', 'Execution mode must be normal'
     instance_loader = InstanceLoader(config)
     instances = instance_loader.load_instances()
     for i, instance in enumerate(instances):
@@ -25,35 +57,11 @@ if __name__ == '__main__':
             method = ConstructionHeuristic(params=config.this_method_params)
             solution = method.solve(instance)
         else:
-            # These methods improve an initial solution
-            solution = instance_loader.get_instance_saved_solution(instance)
-            if solution is None:
-                print(f'No saved solution for instance {instance.name}, generating one with construction heuristic')
-                method = ConstructionHeuristic(params=config.method_params['construction_heuristic'])
-                solution = method.solve(instance)
-                solution.save(config,
-                              path=f'{config.solutions_dir}/construction_heuristic/{config.det_or_random_construction}')
-
-            # Improve solution
-            if config.method == 'local_search':
-                method = LocalSearch(config, params=config.this_method_params)
-                # track_time_start = time.time()
-                solution = method.solve(instance, solution)
-                # track_time_end = time.time()
-                # print(f'Local search time: {track_time_end - track_time_start}')
-            elif config.method == 'simulated_annealing':
-                method = SimulatedAnnealing(config, params=config.this_method_params)
-                solution = method.solve(instance, solution)
-            elif config.method == 'variable_neighborhood_descent':
-                method = VND(config, params=config.this_method_params)
-                solution = method.solve(instance, solution)
-            elif config.method == 'greedy_randomized_adaptive_search_procedure':
-                method = GRASP(config, params=config.this_method_params)
-                solution = method.solve(instance, solution)
-            else:
-                raise ValueError(f'Method {config.method} not implemented')
+            initial_solution, solution = run_method(config, instance, instance_loader)
 
         assert solution.is_feasible(), 'Solution is not feasible'
+        if config.method != 'construction_heuristic':
+            print(f'Initial solution cost: {initial_solution.evaluate()}', end='\n\n')
         print(f'Final solution cost: {solution.evaluate()}', end='\n\n')
         print(solution)
         solution.save(config)

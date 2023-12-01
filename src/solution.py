@@ -206,9 +206,9 @@ class Solution(AbstractSol):
                 if n < m and new_x[n, m]:
                     G_comp.add_edge(n, m)
         while not is_s_plex(self.instance.s, G_comp):
-            min_degree_node = min(G_comp.nodes(), key=lambda x: G_comp.degree(x)) # < |S|-k
+            min_degree_node = min(G_comp.nodes(), key=lambda x: G_comp.degree(x))  # < |S|-s
             candidates = [node for node in G_comp.nodes() if node != min_degree_node and
-                          (min_degree_node, node) not in G_comp.edges() and # make sur a,b is not possible if b,a is forbidden
+                          (min_degree_node, node) not in G_comp.edges() and  # make sur a,b is not possible if b,a is forbidden
                           (min_degree_node, node) not in forbidden_edges]
             if not candidates: # re allow forbidden edges if they are mandatory
                 candidates = [node for node in G_comp.nodes() if node != min_degree_node and

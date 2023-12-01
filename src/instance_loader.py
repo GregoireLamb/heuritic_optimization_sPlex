@@ -38,7 +38,7 @@ class InstanceLoader:
 
         instances = []
         for i, file in enumerate(os.listdir(dir_path)):
-            if self._config.instance_indices is not None and i not in self._config.instance_indices:
+            if self._config.instance_indices and i not in self._config.instance_indices:
                 continue
             instances.append(self.load_instance(f'{dir_path}/{file}'))
 

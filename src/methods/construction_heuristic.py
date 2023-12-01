@@ -14,14 +14,14 @@ class ConstructionHeuristic:
         assert params is not None, 'No params given. Must include at least the randomized boolean parameter'
 
         self._randomized = params['randomized']
+        self.top_kth = params['top_kth']
 
         self._instance = None
         self._x = {}
         self._components = []
         self._s = -1
-        self.top_kth = params['top_kth']
 
-    def solve(self, instance: Instance, last_compoment_only=True) -> Solution: #TODO put last_compoment_only to false by default
+    def solve(self, instance: Instance) -> Solution:  # TODO put last_compoment_only to false by default
         """
         Solve the instance using the deterministic construction heuristic
         :param instance: instance to solve
@@ -33,12 +33,11 @@ class ConstructionHeuristic:
         self._x = {e: 0 for e in instance.edges}
 
         to_add = instance.nodes.copy()
+        best_option_dict = {}  # component_index: (cost)
 
         for i in to_add:
-            if i % 10 == 0: #TODO remove
-                print(f'{i} nodes left to add')
-            if self._randomized:
-                best_option_dict = {}# component_index: (cost)
+            # if i % 10 == 0:
+            #     print(f' - {i} nodes already added')
 
             # New component
             best_cost = self.compute_cost_of_new_component(i)
@@ -56,7 +55,7 @@ class ConstructionHeuristic:
                     best_component = index
 
             if self._randomized:
-                best_option_list = sorted(best_option_dict.items(), key=lambda x: x[1]) # Sort by cost
+                best_option_list = sorted(best_option_dict.items(), key=lambda x: x[1])  # Sort by cost
                 best_component = random.choice(best_option_list[:self.top_kth])[0]
 
             if best_component is None:
@@ -108,7 +107,7 @@ class ConstructionHeuristic:
         """
         G = self.create_component_graph(k)
         self.make_s_plex(G, 0)
-        return set((min(i,j), max(i,j)) for i,j in G.edges())
+        return set((min(i, j), max(i, j)) for i, j in G.edges())
 
     def make_s_plex(self, G, cost):
         """
