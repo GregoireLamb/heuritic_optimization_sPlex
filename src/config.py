@@ -16,8 +16,6 @@ class Config:
         # Execution
         self.instance_type = self.__config["execute"]["instance_type"]
         self.instance_indices = self.__config["execute"]["instance_indices"]
-        if self.instance_indices == 'all':
-            self.instance_indices = None
         self.method = self.__config["execute"]["method"]
         self.det_or_random_construction = 'randomized' \
             if self.__config["params"]["construction_heuristic"]["randomized"] else 'deterministic'

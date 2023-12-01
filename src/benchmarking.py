@@ -21,6 +21,8 @@ if __name__ == '__main__':
     instance_loader = InstanceLoader(config)
     instances = instance_loader.load_instances()
 
+    print(f'Running benchmarking for {config.method} method')
+
     try:
         df = pd.read_csv(config.results_file, sep=';', decimal=',')
     except FileNotFoundError:
@@ -31,6 +33,9 @@ if __name__ == '__main__':
         (df['type'] == config.instance_type) &
         (df.method == config.method)].instance.unique()
     instances = [instance for instance in instances if instance.name not in already_run_instances]
+
+    print(f'Running benchmarking for {len(instances)} instances: '
+          f'{[instance.name for instance in instances]} ')
 
     for i, instance in enumerate(instances):
         print(f'\n\nRunning instance {i + 1} / {len(instances)}')
@@ -66,4 +71,5 @@ if __name__ == '__main__':
 
     print(f'Running benchmarking')
     profiler.stop()
-    profiler.print()
+    print(profiler.output_text(unicode=True, color=True))
+
