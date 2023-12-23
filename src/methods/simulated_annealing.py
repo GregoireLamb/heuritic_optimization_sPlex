@@ -43,11 +43,11 @@ class SimulatedAnnealing:
         :return: the best solution after local search procedure
         """
         self._instance = instance
-        self._solution = solution
+        self._solution = solution.copy()
 
-        sa = SA(solution, meths_ch=self._meths_cs, random_move_delta_eval=self._random_move_delta_eval,
+        sa = SA(self._solution, meths_ch=self._meths_cs, random_move_delta_eval=self._random_move_delta_eval,
                 apply_neighborhood_move=self._apply_neighborhood_move, iter_cb=self._iter_cb, own_settings=self._own_settings,
                 consider_initial_sol=True)
-        sa.sa(self._solution)
+        best_solution = sa.sa(self._solution)
 
-        return self._solution
+        return best_solution

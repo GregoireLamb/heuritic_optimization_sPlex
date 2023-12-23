@@ -53,8 +53,6 @@ if __name__ == '__main__':
             solution = method.solve(instance)
             initial_solution = None
         else:
-            initial_solution = instance_loader.get_instance_saved_solution(instance)
-            assert initial_solution is not None, 'No saved deterministic initial solution for instance'
             initial_solution, solution = run_method(config, instance, instance_loader)
         runtime = time.time() - start
         assert solution.is_feasible(), 'Solution is not feasible'
