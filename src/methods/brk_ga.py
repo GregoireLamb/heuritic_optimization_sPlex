@@ -57,6 +57,7 @@ class BRKGA:
         ga._instance = self._instance
         ga._params = self._params
         ga.run()
+        ga.summary()
         ga.plot_fitness()
         # ga.plot_genes()
 
@@ -75,7 +76,7 @@ class BRKGA:
         # Create a stream handler to log the messages to the console.
         stream_handler = logging.StreamHandler()
         # Set the handler level to debug.
-        stream_handler.setLevel(logging.DEBUG)
+        stream_handler.setLevel(logging.INFO)
         # Create a formatter
         formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         # Add the formatter to handler.
