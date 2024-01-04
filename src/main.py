@@ -1,5 +1,3 @@
-from pyinstrument import Profiler
-
 from src.config import Config
 from src.instance_loader import InstanceLoader
 from src.methods.brk_ga import BRKGA
@@ -39,7 +37,8 @@ def run_method(config: Config, instance: Instance, instance_loader: InstanceLoad
     return initial_solution, solution
 
 
-METHODS_THAT_NEED_INITIAL_SOLUTION = ['local_search', 'simulated_annealing', 'variable_neighborhood_descent', 'brk_genetic_algorithm']
+METHODS_THAT_NEED_INITIAL_SOLUTION = ['local_search', 'simulated_annealing', 'variable_neighborhood_descent',
+                                      'brk_genetic_algorithm']
 
 
 if __name__ == '__main__':
@@ -62,9 +61,6 @@ if __name__ == '__main__':
             solution = method.solve(instance)
         elif config.method == 'greedy_randomized_adaptive_search_procedure':
             method = GRASP(config, params=config.this_method_params)
-            solution = method.solve(instance)
-        elif config.method == 'brk_genetic_algorithm':
-            method = BRKGA(config, params=config.this_method_params)
             solution = method.solve(instance)
         else:
             raise ValueError(f'Method {config.method} not implemented')

@@ -54,8 +54,7 @@ class BRKGA:
             mutation_by_replacement=True,
             random_mutation_min_val=0,
             random_mutation_max_val=1,
-            parallel_processing=None if not self._params['parallel_processing'] else self._params[
-                'parallel_processing'],
+            parallel_processing=None if not self._params['parallel_processing'] else self._params['parallel_processing'],
             random_seed=42,
             logger=logger,
             # save_solutions=True,
@@ -63,7 +62,7 @@ class BRKGA:
         ga._instance = self._instance
         ga._params = self._params
         ga.run()
-        ga.summary()
+        # ga.summary()
         ga.plot_fitness()
         # ga.plot_genes()
 
@@ -102,10 +101,9 @@ class BRKGA:
         """
         ind = np.zeros(self._instance.n + 1)
         num_s_plexes = len(solution.components)
-        ind[0] = ((num_s_plexes - 1) / self._instance.n) ** (1 / self._params['regularization_num_s_plexes'])
+        ind[0] = ((num_s_plexes) / self._instance.n) ** (1 / self._params['regularization_num_s_plexes'])
 
-        calculated_num_s_plexes = max(1, math.ceil((
-                    ind[0] ** self._params['regularization_num_s_plexes']) * self._instance.n))
+        calculated_num_s_plexes = max(1, round((self._instance.n * ind[0] ** self._params['regularization_num_s_plexes'])))
         assert calculated_num_s_plexes == num_s_plexes, \
             f'Gene 0 is {ind[0]} -> {calculated_num_s_plexes} s-plexes but real num s-plexes is {num_s_plexes}'
 

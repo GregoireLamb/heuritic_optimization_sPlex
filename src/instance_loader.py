@@ -7,6 +7,7 @@ from src.utils import Instance
 class InstanceLoader:
     def __init__(self, config: Config):
         self._config = config
+        self.instances_dir = f'{self._config.instances_dir}/inst_{self._config.instance_type}'
 
     @staticmethod
     def load_instance(path) -> Instance:
@@ -33,14 +34,13 @@ class InstanceLoader:
         """
         Load instances according to config instance type
         """
-        dir_path = f'{self._config.instances_dir}/inst_{self._config.instance_type}'
-        assert os.path.isdir(dir_path), f'Instance type {self._config.instance_type} does not exist'
+        assert os.path.isdir(self.instances_dir), f'Instance type {self._config.instance_type} does not exist'
 
         instances = []
-        for i, file in enumerate(os.listdir(dir_path)):
+        for i, file in enumerate(os.listdir(self.instances_dir)):
             if self._config.instance_indices and i not in self._config.instance_indices:
                 continue
-            instances.append(self.load_instance(f'{dir_path}/{file}'))
+            instances.append(self.load_instance(f'{self.instances_dir}/{file}'))
 
         return instances
 
