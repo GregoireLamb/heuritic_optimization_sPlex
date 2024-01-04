@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import random
 from collections import defaultdict
 
@@ -21,19 +22,24 @@ class BRKGA:
         self._config = config
         self._params = params
 
-        self._instance = None
+        self._pop_size = self._params['population_size']
 
-    def solve(self, instance: Instance) -> Solution:
+        self._instance = None
+        self._initial_solution = None
+
+    def solve(self, instance: Instance, initial_solution: Solution) -> Solution:
         """
         Solves the instance using a BRKGA
         """
         self._instance = instance
+        self._initial_solution = initial_solution
 
         logger = self._get_logger()
 
         ga = GA(
+            initial_population=self._build_initial_population(),
             num_generations=self._params['num_generations'],
-            num_parents_mating=math.ceil(self._params['population_size'] * self._params['prop_parents_mating']),
+            num_parents_mating=math.ceil(self._pop_size * self._params['prop_parents_mating']),
             fitness_func=fitness_func,
             sol_per_pop=self._params['population_size'],
             num_genes=self._instance.n + 1,
@@ -67,21 +73,57 @@ class BRKGA:
 
         return Solution(self._instance, x)
 
+    def _build_initial_population(self):
+        if self._initial_solution is None:
+            raise ValueError('Initial population can only be built if an initial solution is passed!')
+        # The idea is to include the individual that represents the initial solution in the initial population
+        ind = self._from_solution_to_individual(self._initial_solution)
+
+        # Rest of solutions are probability random vectors of size n + 1 generated with numpy
+        population = np.zeros((self._pop_size, self._instance.n + 1))
+
+        n_random = math.ceil(self._pop_size / 2)
+
+        for i in range(self._pop_size):
+            if i < n_random:
+                population[i] = np.asarray(np.random.uniform(low=0, high=1, size=self._instance.n + 1))
+            elif i == n_random:
+                population[i] = ind
+            else:
+                population[i] = ind + np.asarray(np.random.normal(loc=0, scale=0.1, size=self._instance.n + 1))
+                population[i] = np.clip(population[i], a_min=0, a_max=1)
+
+        return population
+        # TODO: Additionally, half of the individuals are random and the other half are the initial solution with minor changes
+
+    def _from_solution_to_individual(self, solution: Solution):
+        """
+        Converts a solution to an individual
+        """
+        ind = np.zeros(self._instance.n + 1)
+        num_s_plexes = len(solution.components)
+        ind[0] = ((num_s_plexes - 1) / self._instance.n) ** (1 / self._params['regularization_num_s_plexes'])
+
+        calculated_num_s_plexes = max(1, math.ceil((
+                    ind[0] ** self._params['regularization_num_s_plexes']) * self._instance.n))
+        assert calculated_num_s_plexes == num_s_plexes, \
+            f'Gene 0 is {ind[0]} -> {calculated_num_s_plexes} s-plexes but real num s-plexes is {num_s_plexes}'
+
+        # Calculate the value of the remaining genes
+        for i, comp in enumerate(solution.components):
+            for node in comp:
+                ind[node] = i / num_s_plexes
+
+        return ind
+
     @staticmethod
     def _get_logger():
-        # Create a logger
         logger = logging.getLogger(__name__)
-        # Set the logger level to debug so that all the messages are printed.
         logger.setLevel(logging.INFO)
-        # Create a stream handler to log the messages to the console.
         stream_handler = logging.StreamHandler()
-        # Set the handler level to debug.
         stream_handler.setLevel(logging.INFO)
-        # Create a formatter
         formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        # Add the formatter to handler.
         stream_handler.setFormatter(formatter)
-        # Add the stream handler to the logger
         logger.addHandler(stream_handler)
         return logger
 
@@ -95,13 +137,12 @@ def build_solution(ga_instance, solution, solution_idx) -> dict:
     assert np.min(solution) >= 0 and np.max(solution) <= 1, 'Solution must be a vector of probabilities'
 
     # The first gene represents the number of s-plexes. It is a number from 1 to n
-    val = solution[0] ** ga_instance._params['regularization_num_s_plexes']
-    num_s_plexes = max(1, math.ceil(val * instance.n))
+    num_s_plexes = max(1, math.ceil((solution[0] ** ga_instance._params['regularization_num_s_plexes']) * instance.n))
 
     components = [set() for _ in range(num_s_plexes)]
     # The remaining genes represent the assignment of each node to a s-plex.
     for i in instance.nodes:
-        components[min(num_s_plexes - 1, math.floor(solution[i - 2] * num_s_plexes))].add(i)
+        components[min(num_s_plexes - 1, math.floor(solution[i] * num_s_plexes))].add(i)
 
     components = [c for c in components if c]
 
@@ -110,9 +151,6 @@ def build_solution(ga_instance, solution, solution_idx) -> dict:
 
     for i in range(len(graph_components)):
         graph_components[i] = delete_edges(graph_components[i], instance)
-
-    # # Finally write the x dictionary
-    # x = {e: 0 for e in instance.edges}
 
     x = defaultdict(lambda: 0)
     for i in range(len(graph_components)):

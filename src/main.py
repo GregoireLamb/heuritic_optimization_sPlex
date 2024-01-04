@@ -32,14 +32,14 @@ def run_method(config: Config, instance: Instance, instance_loader: InstanceLoad
         solution = method.solve(instance, initial_solution)
     elif config.method == 'brk_genetic_algorithm':
         method = BRKGA(config, params=config.this_method_params)
-        solution = method.solve(instance)
+        solution = method.solve(instance, initial_solution)
     else:
         raise ValueError(f'Method {config.method} not implemented')
 
     return initial_solution, solution
 
 
-METHODS_THAT_NEED_INITIAL_SOLUTION = ['local_search', 'simulated_annealing', 'variable_neighborhood_descent']
+METHODS_THAT_NEED_INITIAL_SOLUTION = ['local_search', 'simulated_annealing', 'variable_neighborhood_descent', 'brk_genetic_algorithm']
 
 
 if __name__ == '__main__':
