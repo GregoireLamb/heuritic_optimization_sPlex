@@ -4,6 +4,7 @@ from pyinstrument import Profiler
 
 from src.config import Config
 from src.instance_loader import InstanceLoader
+from src.methods.ants_colony import AntColony
 from src.methods.construction_heuristic import ConstructionHeuristic
 from src.methods.grasp import GRASP
 from src.methods.local_search import LocalSearch
@@ -33,6 +34,9 @@ def run_method(config: Config, instance: Instance, instance_loader: InstanceLoad
         solution = method.solve(instance, initial_solution)
     elif config.method == 'greedy_randomized_adaptive_search_procedure':
         method = GRASP(config, params=config.this_method_params)
+        solution = method.solve(instance, initial_solution)
+    elif config.method == 'ant_colony_optimization':
+        method = AntColony(config, params=config.this_method_params)
         solution = method.solve(instance, initial_solution)
     else:
         raise ValueError(f'Method {config.method} not implemented')

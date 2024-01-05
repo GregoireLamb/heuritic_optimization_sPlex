@@ -198,6 +198,12 @@ class Solution(AbstractSol):
         return new_x, components, new_G, new_edges
 
     def _make_s_plex_on_component(self, new_x, comp, forbidden_edges):
+        """
+        make the component an s-plex
+        :param new_x: new self._x
+        :param comp: component in a nx Graph format ? sur about format ?
+        :param forbidden_edges: list of edges that cannot be added
+        """
         new_edges = set()
         G_comp = nx.Graph()
         G_comp.add_nodes_from(comp)
