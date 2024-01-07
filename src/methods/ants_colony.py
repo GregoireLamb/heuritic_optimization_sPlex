@@ -28,8 +28,7 @@ class AntColony:
         self._pheromone_initial_value = self._params['pheromone_initial_value']
         self._n_iter = self._params['n_iter']
         self._evaporation_rate = self._params['evaporation_rate']
-
-        self._ants_list = None
+        self._strategy = self._params['strategy']
 
         self._graph = None
         self._best_solution = None
@@ -44,27 +43,27 @@ class AntColony:
         self._best_solution = solution.copy()
         self._best_solution_score = solution.evaluate()
         self.set_ants()
+        do_print = False
 
         # assert the number of component in the solution is less than the max number of component
         assert len(self._solution.components) <= self._max_components, 'The number of components in the solution is greater than the max number of components please allow more freedom in max_components'
 
         self._graph = self.set_graph()
         self._pheromone_matrix = self._initialize_pheromone_matrix()
-        self._pheromone_matrix = self._set_first_ph_matrix()
+        self._pheromone_matrix = self._set_first_ph_matrix() #TODO reinstall ???
         plt.imshow(self._pheromone_matrix, cmap='hot', interpolation='nearest')
         plt.show()
 
         scores = []
         print(f'Initial cost: {self._best_solution_score}')
         for iteration in range(self._n_iter):
-            if iteration%20 == 0: print(f'Iteration in Ant colony method solve: {iteration}, self._best_solution_score:{self._best_solution_score}')
+            if iteration%20 == 0 and do_print: print(f'Iteration in Ant colony method solve: {iteration}, self._best_solution_score:{self._best_solution_score}')
             ant: Ant
             for i, ant in enumerate(self._ants_list):
                 # force an ant to the construction heuristic if iteration == 0
                 if i == 0: # make 1st ant greedy
                     score = ant.create_solution(self._graph, self._pheromone_matrix, greedy=True).evaluate()
                     scores.append(score)
-                    print(f'deterministic score = {score}') #TODO remove later
                 else:
                     score = ant.create_solution(self._graph, self._pheromone_matrix).evaluate()
                     scores.append(score)
@@ -72,27 +71,32 @@ class AntColony:
                     self._best_solution = ant._solution
                     self._best_solution_score = score
 
-            self._update_pheromone_matrix()
-            if iteration%40 == 0:
+            self._update_pheromone_matrix(strategy=self._strategy)
+            if iteration%50 == 0 and do_print:
                 print(f'sum ph = {self._pheromone_matrix.sum()}')
                 # plot the pheromone matrix as a heat map
                 plt.imshow(self._pheromone_matrix, cmap='hot', interpolation='nearest')
                 plt.show()
         # plot the scores
         plt.plot(scores)
+        plt.ylim(7000, 10000)
         plt.show()
         return self._best_solution
 
-    def _update_pheromone_matrix(self, strategy='best_ant'):
+    def _update_pheromone_matrix(self, strategy):
         # Update
         if strategy == 'best_ant':
             sorted_ants_list = sorted(self._ants_list, key=lambda ant: ant._solution.evaluate())
+            assert sorted_ants_list[0]._solution.evaluate < sorted_ants_list[-1]._solution.evaluate() #TODO remove
             best_ant = sorted_ants_list[0]
-            print(f'best ant score = {best_ant._solution.evaluate()}' )
             self._pheromone_matrix = best_ant._pheromone_matrix
         if strategy == 'min_max':
-            # TODO
-            pass
+            sorted_ants_list = sorted(self._ants_list, key=lambda ant: ant._solution.evaluate())
+            # map the deposit value from 0 to local_pheromone_update regarding the score
+            best_score_it = sorted_ants_list[0]._solution.evaluate()
+            score_diff = sorted_ants_list[-1]._solution.evaluate() - best_score_it
+            for ant in sorted_ants_list:
+                self._pheromone_matrix += ant._pheromone_matrix * self._local_pheromone_update * (1-((ant._solution.evaluate()-best_score_it)/score_diff))
         # Evaporation
         self._pheromone_matrix *= (1 - self._evaporation_rate)
 
@@ -144,8 +148,8 @@ class Ant:
         node_to_visit = list(self._instance.nodes)
 
         while len(node_to_visit) != 0:
-            # node = np.random.choice(node_to_visit) #TODO add for diversification
-            node = node_to_visit[0] #TODO remove
+            node = np.random.choice(node_to_visit) #TODO add for diversification
+            # node = node_to_visit[0] #TODO remove
             node_to_visit.remove(node)
             indice = node -1
             choosen_component = self._select_an_edge(graph, pheromone_matrix, node, greedy)
