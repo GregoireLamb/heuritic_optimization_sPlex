@@ -12,16 +12,18 @@ from src.config import Config as BasicConfig
 from instances import Instances
 from function_wrapper import TargetFunctionWrapper
 from src.methods.brk_ga import BRKGA
+from src.methods.ants_colony import AntColony
 
 
 class SolverLogParser:
     pass
 
 
-class FunctionBRKGA(TargetFunctionWrapper):
-    def __init__(self, config: Config, instances: Instances):
+class FunctionTuning(TargetFunctionWrapper):
+    def __init__(self, config: Config, instances: Instances, model_to_tune=BRKGA):
         super().__init__(config=config)
 
+        self._model_to_tune = model_to_tune
         self._instances = instances
 
     def evaluate(self, configuration: Configuration, instance: str = None, seed: float = None) -> float:
@@ -37,14 +39,19 @@ class FunctionBRKGA(TargetFunctionWrapper):
         initial_cost = instance_info['construction_heuristic_cost']
 
         basic_config = BasicConfig()
-        ga_parameters = basic_config.this_method_params
+        model_parameters = basic_config.this_method_params
 
         # Set parameters according to the configuration
         for param, value in configuration.items():
-            ga_parameters[param] = value
+            model_parameters[param] = value
 
-        logging.info(f'Executing instance {instance} with configuration {ga_parameters}')
-        method = BRKGA(basic_config, params=ga_parameters)
+        logging.info(f'Executing instance {instance} with model {self.model_to_tune} configuration {model_parameters}')
+        if self.model_to_tune == BRKGA:
+            method = BRKGA(basic_config, params=model_parameters)
+        elif self.model_to_tune == AntColony:
+            method = AntColony(basic_config, params=model_parameters)
+        else:
+            raise ValueError(f'Model {self.model_to_tune} not implemented')
         solution = method.solve(instance_object, initial_solution)
         objective = solution.evaluate() / initial_cost
         logging.info(f'Solver finished with target objective {objective}')
