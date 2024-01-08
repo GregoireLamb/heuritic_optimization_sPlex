@@ -37,7 +37,7 @@ class InstanceLoader:
         assert os.path.isdir(self.instances_dir), f'Instance type {self._config.instance_type} does not exist'
 
         instances = []
-        for i, file in enumerate(os.listdir(self.instances_dir)):
+        for i, file in enumerate(sorted(os.listdir(self.instances_dir))):
             if self._config.instance_indices and i not in self._config.instance_indices:
                 continue
             instances.append(self.load_instance(f'{self.instances_dir}/{file}'))

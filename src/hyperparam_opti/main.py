@@ -3,6 +3,7 @@ from hyperparam_config import Config
 from function_brkga import FunctionBRKGA
 from instances import Instances
 import argparse
+from datetime import datetime
 import os
 
 import logging

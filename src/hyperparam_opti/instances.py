@@ -19,11 +19,11 @@ class Instances:
         basic_config.instance_indices = config.instance_indices
         self._instance_loader = InstanceLoader(basic_config)
 
-        # self._instance_info = self._read_instance_info()
         self.instances = self._read_instances()
         instance_objects = self._instance_loader.load_instances()
         assert len(self.instances) == len(instance_objects), f'Number of instances does not match.'
         self._instance_objects_map = {instance.name: instance for instance in instance_objects}
+        self.instance_features = self._create_instance_features()
         self._default_solutions = {instance.name: self._instance_loader.get_instance_saved_solution(instance)
                                    for instance in instance_objects}
 
@@ -37,32 +37,25 @@ class Instances:
         """
         files = os.listdir(self._instance_loader.instances_dir)
 
-        files = [file.split('.')[0] for file in files if file.endswith('.txt')]
+        files = sorted([file.split('.')[0] for file in files if file.endswith('.txt')])
 
         if self._config.instance_indices:
             files = [file for i, file in enumerate(files) if i in self._config.instance_indices]
 
         return files
 
-    # def _load_instance_features(self):
-    #     """
-    #     Read instance features. Features used are specified in the configuration.
-    #     """
-    #     if not self._config.use_instance_features:
-    #         return None
-    #     assert all(feat in self._instance_info.columns for feat in self._config.instance_features), \
-    #         f'Some instance feature from {self._config.instance_features} not found in instance info'
-    #     return {
-    #         row.instance: [row[feat] for feat in self._config.instance_features]
-    #         for _, row in self._instance_info.iterrows() if row.instance in self.instances
-    #     }
-    #
-    # def _read_instance_info(self):
-    #     """
-    #     Read instance info from instance_info.json
-    #     """
-    #     return pd.read_csv(self._config.instance_info_path, sep=';', decimal=',')
-    #
+    def _create_instance_features(self):
+        """
+        Read instance features. Features used are specified in the configuration.
+        """
+        if not self._config.use_instance_features:
+            return None
+        feat = {}
+        for instance in self.instances:
+            instance_obj = self._instance_objects_map[instance]
+            feat[instance] = [instance_obj.n, instance_obj.m, instance_obj.s / instance_obj.n]
+        return feat
+
     def get_instance_info(self, instance: str):
         """
         Return the instance info for the given instance

@@ -43,7 +43,7 @@ class FunctionBRKGA(TargetFunctionWrapper):
         for param, value in configuration.items():
             ga_parameters[param] = value
 
-        logging.info(f'Executing with configuration {ga_parameters}')
+        logging.info(f'Executing instance {instance} with configuration {ga_parameters}')
         method = BRKGA(basic_config, params=ga_parameters)
         solution = method.solve(instance_object, initial_solution)
         objective = solution.evaluate() / initial_cost

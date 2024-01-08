@@ -26,8 +26,6 @@ class Config:
         self.method_to_tune = self._execution_config['method_to_tune']
         self.objective = self._execution_config['objective']
         self.use_instance_features = self._execution_config['use_instance_features']
-        self.instance_features = self._execution_config['instance_features']
-        self.use_150_selected_instances = self._execution_config['use_150_selected_instances']
         self.instance_type = self._execution_config['instance_type']
         self.instance_indices = self._execution_config['instance_indices']
         self.start_new_run = self._execution_config['start_new_run']
@@ -47,6 +45,7 @@ class Config:
         if type(self.n_workers) is str:
             if self.n_workers == 'half_cores':
                 self.n_workers = cpu_count() // 2
+                print(f'Using {self.n_workers} workers')
             else:
                 raise ValueError(f'Invalid value for n_workers: {self.n_workers}')
         self.n_iterations_without_improvement = self._optimization_config['n_iterations_without_improvement']

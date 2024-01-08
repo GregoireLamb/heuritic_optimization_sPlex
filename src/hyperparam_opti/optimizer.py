@@ -82,7 +82,6 @@ class HyperparamOptimizer:
         self._config = config
         self._function_wrapper = wrapper
         self._instances = instances
-        assert len(self._instances.instances) <= 1, 'Multiple instances not supported yet'
 
         self._param_space = self._function_wrapper.get_param_space()
         self._smac = None
