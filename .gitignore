@@ -1,6 +1,13 @@
+
+# Configuration files
 config.yaml
+config_hyperparam_tuner.yaml
+
+# IDE files
 .idea/*
 src/__pycache__/*
 src/methods/__pycache__/*
+
+# Non-tracked directories
 results/*
 solutions/*

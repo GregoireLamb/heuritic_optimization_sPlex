@@ -2,3 +2,6 @@ pyyaml>=6.0.1
 pymhlib>=0.1.5
 networkx>=2.5.1
 matplotlib>=3.4.2
+pygad>=3.2.0
+configspace>=0.4.19
+smac>=2.0.2
