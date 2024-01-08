@@ -42,12 +42,12 @@ def run_method(config: Config, instance: Instance, instance_loader: InstanceLoad
 
 
 METHODS_THAT_NEED_INITIAL_SOLUTION = ['local_search', 'simulated_annealing', 'variable_neighborhood_descent',
-                                      'brk_genetic_algorithm']
+                                      'brk_genetic_algorithm', 'ant_colony_optimization']
 
 
 if __name__ == '__main__':
-    prof = Profiler()
-    prof.start()
+    # prof = Profiler()
+    # prof.start()
 
     config = Config()
 
@@ -78,6 +78,6 @@ if __name__ == '__main__':
         assert new_solution.evaluate() == solution.evaluate(), \
             'Saved solution is not the same as the current solution'
 
-    prof.stop()
-    print(prof.output_text(unicode=True, color=True))
+    # prof.stop()
+    # print(prof.output_text(unicode=True, color=True))
 
