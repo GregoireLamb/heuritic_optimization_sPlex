@@ -31,6 +31,7 @@ class Config:
         self.instances_dir = f'{self.root}/{self.__config["paths"]["instances"]}'
         self.solutions_dir = f'{self.root}/{self.__config["paths"]["solutions"]}'
         self.results_file = f'{self.root}/results/results.csv'
+        self.results_test_file = f'{self.root}/src/statistical_testing/results_for_stat_test.csv'
 
     def load_config(self):
         """
