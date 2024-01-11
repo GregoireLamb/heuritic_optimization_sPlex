@@ -22,11 +22,14 @@ GENERAL_LIMIT = 100000000
 
 class StopCallback(Callback):
     def __init__(self, early_iteration_limit: int, early_walltime_limit: int, config: Config):
+        super().__init__()
+
         self._early_iteration_limit = early_iteration_limit
         self._early_walltime_limit = early_walltime_limit
 
         self._n_iterations_without_improvement = config.n_iterations_without_improvement
         self._n_workers = config.n_workers
+        logging.info(f'Using {self._n_workers} workers')
 
     def on_tell_end(self, smbo: SMBO, info: TrialInfo, value: TrialValue) -> Union[bool, None]:
         """
