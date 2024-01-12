@@ -1,6 +1,6 @@
 from optimizer import HyperparamOptimizer
 from hyperparam_config import Config
-from function_brkga import FunctionBRKGA
+from function_tuning import FunctionTuning
 from instances import Instances
 import argparse
 from datetime import datetime
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         logging.info('Starting single SMAC execution')
 
         instances = Instances(config)
-        wrapper = FunctionBRKGA(config, instances)
+        wrapper = FunctionTuning(config, instances)
 
         bb_optimizer = HyperparamOptimizer(config, wrapper, instances)
         bb_optimizer.run()

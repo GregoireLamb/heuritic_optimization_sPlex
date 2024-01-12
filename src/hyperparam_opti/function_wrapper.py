@@ -37,7 +37,7 @@ class TargetFunctionWrapper(ABC):
         """
         Return the parameter space
         """
-        conf_space = ConfigurationSpace(name='BoltHyperparameters')
+        conf_space = ConfigurationSpace(name='Hyperparameters')
 
         parameters = []
         for name, settings in self._config.hyperparameters.items():
