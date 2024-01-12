@@ -44,11 +44,13 @@ class AntColony:
         self._solution = solution.copy()
         self._best_solution = solution.copy()
         self._best_solution_score = solution.evaluate()
+        self._initial_solution_score = solution.evaluate()
 
         if self._max_components == -1:
             self._max_components = len(self._solution.components)
 
         self.set_ants()
+        do_print = False
 
         # assert the number of component in the solution is less than the max number of component
         assert len(self._solution.components) <= self._max_components, 'The number of components in the solution is greater than the max number of components please allow more freedom in max_components'
@@ -56,13 +58,22 @@ class AntColony:
         self._graph = self.set_graph()
         self._pheromone_matrix = self._initialize_pheromone_matrix()
         self._pheromone_matrix = self._set_first_ph_matrix(self._informed)
-        plt.imshow(self._pheromone_matrix, cmap='hot', interpolation='nearest')
-        plt.show()
+        # plt.imshow(self._pheromone_matrix, cmap='hot', interpolation='nearest')
+        # plt.show()
 
         scores = []
         print(f'Initial cost: {self._best_solution_score}')
         for iteration in range(self._n_iter):
-            if iteration%20 == 0 and do_print: print(f'Iteration in Ant colony method solve: {iteration}, self._best_solution_score:{self._best_solution_score}')
+            if iteration%50 == 0 and do_print: print(f'Iteration in Ant colony method solve: {iteration}, self._best_solution_score:{self._best_solution_score}')
+            if iteration%100 == 0 and do_print:
+                # print(f'sum ph = {self._pheromone_matrix.sum()}')
+                # plot the pheromone matrix as a heat map
+                plt.imshow(self._pheromone_matrix, cmap='hot', interpolation='nearest')
+                # add title and axis labels
+                plt.title(f'Pheromone matrix iteration {iteration}')
+                plt.xlabel('Components')
+                plt.ylabel('Nodes')
+                plt.show()
             ant: Ant
             for i, ant in enumerate(self._ants_list):
                 # force an ant to the construction heuristic if iteration == 0
@@ -77,26 +88,28 @@ class AntColony:
                     self._best_solution_score = score
 
             self._update_pheromone_matrix(strategy=self._strategy)
-            if iteration%10 == 0 and do_print:
-                print(f'sum ph = {self._pheromone_matrix.sum()}')
-                # plot the pheromone matrix as a heat map
-                plt.imshow(self._pheromone_matrix, cmap='hot', interpolation='nearest')
-                plt.show()
+
         # plot the scores
+        scores = [(x - self._initial_solution_score) * 100 / self._initial_solution_score for x in scores]
+
         plt.plot(scores)
-        # plt.ylim(7000, 10000)
+        plt.title(f'Ant relative improvement ({len(self._ants_list)} ants)')
+        plt.xlabel('Time')
+        plt.ylabel('Relative improvement %')
         plt.show()
-        scores_sub100 = scores[100:]
-        plt.plot(scores_sub100)
-        # plt.ylim(7000, 10000)
-        plt.show()
+        # scores_sub100 = scores[100:]
+        # plt.title(f'Ant relative improvement ({len(self._ants_list)} ants)')
+        # plt.xlabel('Time')
+        # plt.ylabel('Relative improvement %')
+        # plt.plot(scores_sub100)
+        # plt.show()
         return self._best_solution
 
     def _update_pheromone_matrix(self, strategy):
         # Update
         if strategy == 'best_ant':
             sorted_ants_list = sorted(self._ants_list, key=lambda ant: ant._solution.evaluate())
-            assert sorted_ants_list[0]._solution.evaluate() < sorted_ants_list[-1]._solution.evaluate() #TODO remove
+            # assert sorted_ants_list[0]._solution.evaluate() < sorted_ants_list[-1]._solution.evaluate() #TODO remove
             best_ant = sorted_ants_list[0]
             self._pheromone_matrix = best_ant._pheromone_matrix
         if strategy == 'min_max':
