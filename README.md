@@ -34,6 +34,8 @@ We implemented the following methods:
 - **BRKGA**: Biased Random Key Genetic Algorithm
 - **ACO**: Ant Colony Optimization
 
+The project includes a hyperparameter optimization module that utilizes [SMAC](https://automl.github.io/SMAC3/v2.0.2/), a Bayesian Optimization framework for Black-Box optimization and algorithm configuration.
+
 ## Usage
 The code is written in Python 3.8. For the installation of the required packages, run
 ```python
