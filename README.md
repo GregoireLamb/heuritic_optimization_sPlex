@@ -41,6 +41,7 @@ The code is written in Python 3.8. For the installation of the required packages
 ```python
 pip install -r requirements.txt
 ```
+For installing SMAC, we refer to [this page](https://automl.github.io/SMAC3/v2.0.2/1_installation.html).
 
 The main scripts are ``main.py`` and ``benchmarking.py``. The first one is used to run the algorithms on a single instance, 
 while the second one is used to run the algorithms on a set of instances and writes the results to a CSV file. 
