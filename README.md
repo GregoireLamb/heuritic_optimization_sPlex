@@ -1,6 +1,6 @@
-# Heuristic Optimization for the s-Plex Graph Problem
+# Heuristic Optimization for the Weighted s-Plex Editing Problem
 
-Programming exercise for the lecture 192.137 Heuristic Optimization Techniques (VU 3,0) at TU Wien 2023W.
+Programming exercise for the course [192.137 Heuristic Optimization Techniques (VU 3,0)](https://tiss.tuwien.ac.at/course/educationDetails.xhtml?dswid=7017&dsrid=945&semester=2023W&courseNr=192137) at TU Wien 2023W.
 
 **Group 05**: Joan Salvà Soler, Grégoire de Lambertye
 
@@ -31,6 +31,8 @@ We implemented the following methods:
   - **Move nodes**: Move nodes from one s-Plex to another
 - **VND**: Variable Neighborhood Descent
 - **Simulated Annealing**: Simulated Annealing with the construction heuristic as initial solution.
+- **BRKGA**: Biased Random Key Genetic Algorithm
+- **ACO**: Ant Colony Optimization
 
 ## Usage
 The code is written in Python 3.8. For the installation of the required packages, run
@@ -38,8 +40,8 @@ The code is written in Python 3.8. For the installation of the required packages
 pip install -r requirements.txt
 ```
 
-The main scrips are ``main.py`` and ``benchmarking.py``. The first one is used to run the algorithms on a single instance, 
-while the second one is used to run the algorithms on a set of instances and writes the results to a csv file. 
+The main scripts are ``main.py`` and ``benchmarking.py``. The first one is used to run the algorithms on a single instance, 
+while the second one is used to run the algorithms on a set of instances and writes the results to a CSV file. 
 
 The ``documentation`` folder contains the documentation of the code. The ``instances`` folder contains the assignment 
 description and problem information. The ``instances`` folder contains the instances of the problem. There are test,
